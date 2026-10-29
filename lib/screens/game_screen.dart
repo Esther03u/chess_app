@@ -6,34 +6,43 @@ import '../domain/game_logic.dart';
 import '../providers/game_controller.dart';
 import '../widgets/board_view.dart';
 
-/// Screen where two human players can play chess against each other on one device.
+/// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels).
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF262421),
-      appBar: AppBar(
-        title: const Text(
-          AppStrings.humanVsHuman,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: AppStrings.restart,
-            onPressed: () => _confirmRestart(context),
+    return Consumer<GameController>(
+      builder: (context, controller, child) {
+        final modeTitle = controller.gameMode == GameMode.humanVsHuman
+            ? AppStrings.humanVsHuman
+            : '${AppStrings.playVsBot} (${_botLevelLabel(controller.botLevel)})';
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF262421),
+          appBar: AppBar(
+            title: Text(
+              modeTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            backgroundColor: const Color(0xFF1E1E1E),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.smart_toy_outlined),
+                tooltip: AppStrings.gameMode,
+                onPressed: () => _showGameModeDialog(context, controller),
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: AppStrings.restart,
+                onPressed: () => _confirmRestart(context),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Consumer<GameController>(
-          builder: (context, controller, child) {
-            return Column(
+          body: SafeArea(
+            child: Column(
               children: [
                 // Top status bar
                 _buildStatusBar(context, controller),
@@ -44,6 +53,9 @@ class GameScreen extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       child: BoardView(
+                        isFlipped:
+                            controller.gameMode == GameMode.vsBot &&
+                            controller.playerColor == PlayerColor.black,
                         onPromotionRequested: () =>
                             _showPromotionDialog(context, controller.turn),
                       ),
@@ -57,11 +69,22 @@ class GameScreen extends StatelessWidget {
                 // Action buttons (Undo, Resign)
                 _buildActionButtons(context, controller),
               ],
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  static String _botLevelLabel(BotLevel level) {
+    switch (level) {
+      case BotLevel.easy:
+        return 'ง่าย';
+      case BotLevel.medium:
+        return 'ปานกลาง';
+      case BotLevel.hard:
+        return 'ยาก';
+    }
   }
 
   Widget _buildStatusBar(BuildContext context, GameController controller) {
@@ -83,22 +106,38 @@ class GameScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: isWhiteTurn ? Colors.white : Colors.black,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey, width: 1),
+              if (controller.isBotThinking) ...[
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ] else ...[
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: isWhiteTurn ? Colors.white : Colors.black,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey, width: 1),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
               Text(
                 controller.statusMessage,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: controller.isInCheck ? Colors.redAccent : Colors.white,
+                  color: controller.isBotThinking
+                      ? Colors.amber
+                      : controller.isInCheck
+                      ? Colors.redAccent
+                      : Colors.white,
                 ),
               ),
             ],
@@ -193,6 +232,11 @@ class GameScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, GameController controller) {
+    final canUndo =
+        controller.history.isNotEmpty &&
+        !controller.isGameOver &&
+        !controller.isBotThinking;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
       child: Row(
@@ -206,9 +250,7 @@ class GameScreen extends StatelessWidget {
                 side: const BorderSide(color: Colors.white24),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              onPressed: controller.history.isNotEmpty && !controller.isGameOver
-                  ? () => controller.undo()
-                  : null,
+              onPressed: canUndo ? () => controller.undo() : null,
             ),
           ),
           const SizedBox(width: 12),
@@ -221,12 +263,171 @@ class GameScreen extends StatelessWidget {
                 foregroundColor: Colors.red.shade200,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              onPressed: !controller.isGameOver
+              onPressed: !controller.isGameOver && !controller.isBotThinking
                   ? () => _confirmResign(context, controller)
                   : null,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showGameModeDialog(
+    BuildContext context,
+    GameController controller,
+  ) async {
+    GameMode selectedMode = controller.gameMode;
+    BotLevel selectedLevel = controller.botLevel;
+    PlayerColor selectedColor = controller.playerColor;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF312E2B),
+            title: const Text(
+              AppStrings.gameMode,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'โหมดเกม',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<GameMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: GameMode.humanVsHuman,
+                          label: Text('เล่น 2 คน'),
+                        ),
+                        ButtonSegment(
+                          value: GameMode.vsBot,
+                          label: Text('เล่นกับบอท'),
+                        ),
+                      ],
+                      selected: {selectedMode},
+                      onSelectionChanged: (newSelection) {
+                        setState(() => selectedMode = newSelection.first);
+                      },
+                      style: SegmentedButton.styleFrom(
+                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedForegroundColor: Colors.white,
+                        foregroundColor: Colors.white70,
+                      ),
+                    ),
+                  ),
+                  if (selectedMode == GameMode.vsBot) ...[
+                    const Divider(color: Colors.white24, height: 24),
+                    const Text(
+                      AppStrings.botLevel,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SegmentedButton<BotLevel>(
+                      segments: const [
+                        ButtonSegment(
+                          value: BotLevel.easy,
+                          label: Text('ง่าย'),
+                        ),
+                        ButtonSegment(
+                          value: BotLevel.medium,
+                          label: Text('ปานกลาง'),
+                        ),
+                        ButtonSegment(value: BotLevel.hard, label: Text('ยาก')),
+                      ],
+                      selected: {selectedLevel},
+                      onSelectionChanged: (newSelection) {
+                        setState(() => selectedLevel = newSelection.first);
+                      },
+                      style: SegmentedButton.styleFrom(
+                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedForegroundColor: Colors.white,
+                        foregroundColor: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'เลือกฝั่งผู้เล่น',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SegmentedButton<PlayerColor>(
+                      segments: const [
+                        ButtonSegment(
+                          value: PlayerColor.white,
+                          label: Text(AppStrings.white),
+                        ),
+                        ButtonSegment(
+                          value: PlayerColor.black,
+                          label: Text(AppStrings.black),
+                        ),
+                      ],
+                      selected: {selectedColor},
+                      onSelectionChanged: (newSelection) {
+                        setState(() => selectedColor = newSelection.first);
+                      },
+                      style: SegmentedButton.styleFrom(
+                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedForegroundColor: Colors.white,
+                        foregroundColor: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  AppStrings.cancel,
+                  style: TextStyle(color: Colors.white54),
+                ),
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF769656),
+                ),
+                child: const Text(
+                  AppStrings.confirm,
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  controller.setGameMode(
+                    selectedMode,
+                    playerColor: selectedColor,
+                    botLevel: selectedLevel,
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -310,16 +511,20 @@ class GameScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      // Current player resigns, meaning the opponent wins
+      final isBot = controller.gameMode == GameMode.vsBot;
+      final winnerMsg = isBot
+          ? AppStrings.botWon
+          : (controller.turn == PlayerColor.white
+                ? AppStrings.blackWon
+                : AppStrings.whiteWon);
+
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: const Color(0xFF312E2B),
           title: const Text('จบเกม', style: TextStyle(color: Colors.white)),
           content: Text(
-            controller.turn == PlayerColor.white
-                ? AppStrings.blackWon
-                : AppStrings.whiteWon,
+            winnerMsg,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
           actions: [

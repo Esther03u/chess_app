@@ -34,8 +34,19 @@ class AppStrings {
   static const String bishop = 'บิชอป (Bishop)';
   static const String knight = 'ม้า (Knight)';
 
-  // Players
+  // Players & Modes
   static const String white = 'หมากขาว';
   static const String black = 'หมากดำ';
-  static const String humanVsHuman = 'เล่น 2 คนบนเครื่องเดียวกัน';
+  static const String humanVsHuman = 'เล่น 2 คน (Pass & Play)';
+  static const String playVsBot = 'เล่นกับบอท (Play vs Bot)';
+  static const String gameMode = 'โหมดการเล่น';
+  static const String botLevel = 'ระดับความยากบอท';
+  static const String easyLevel = 'ง่าย (Easy)';
+  static const String mediumLevel = 'ปานกลาง (Medium)';
+  static const String hardLevel = 'ยาก (Hard)';
+  static const String playAsWhite = 'เล่นเป็นหมากขาว';
+  static const String playAsBlack = 'เล่นเป็นหมากดำ';
+  static const String botThinking = 'บอทกำลังคิด...';
+  static const String playerWon = 'คุณชนะ!';
+  static const String botWon = 'บอทชนะ!';
 }
