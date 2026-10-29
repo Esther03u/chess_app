@@ -4,6 +4,7 @@ import '../core/strings.dart';
 import '../domain/game_logic.dart';
 import '../models/game_record.dart';
 import '../services/db_service.dart';
+import 'analysis_screen.dart';
 
 /// Screen displaying the history of completed games loaded from SQLite (FR4).
 class HistoryScreen extends StatefulWidget {
@@ -351,6 +352,19 @@ class _GameReplayScreenState extends State<GameReplayScreen> {
         backgroundColor: const Color(0xFF1E1E1E),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.insights),
+            tooltip: AppStrings.gameAnalysis,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AnalysisScreen(record: widget.record),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(

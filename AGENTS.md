@@ -539,7 +539,7 @@ Rules for this section:
 | Storage | Must | T-007 | done | 2026-10-29 | SQLite persistence, PGN round-trip, History & Replay screens |
 | Puzzle screen | Must | T-008 | done | 2026-10-29 | FR5 satisfied: Daily puzzle UI, move validation, opponent reply, offline/retry handling |
 | Tests & quality | Must | T-009 | done | 2026-10-29 | 58 tests passed green; dart analyze clean; dart format clean; no secrets in repo |
-| Analysis | Should | T-010 | todo | — | cut if Must not done by 2026-11-04 PM |
+| Analysis | Should | T-010 | done | 2026-10-29 | FR6 satisfied: Eval advantage curve, per-move classification, accuracy math, SQLite caching |
 | Release verification | Must | T-011 | todo | — | |
 | Report & demo support | Must | T-012 | todo | — | student owns final report |
 | Freeze & tag | Must | T-013 | todo | — | |
@@ -596,10 +596,18 @@ Rules for this section:
 <!-- STATE:END module:api -->
 
 <!-- STATE:BEGIN module:analysis -->
-- Last updated: —
-- Files: —
-- Decisions: thresholds 2/10/20/30 win% loss (tunable in `classification_config.dart`); accuracy constants UNVERIFIED (V7)
-- Open issues: —
+- Last updated: 2026-10-29
+- Files: lib/domain/classification_config.dart, lib/domain/classification.dart, lib/models/analysis_result.dart, lib/services/analysis_service.dart, lib/widgets/eval_graph.dart, lib/screens/analysis_screen.dart, test/domain/classification_test.dart, test/services/analysis_service_test.dart, test/screens/analysis_screen_test.dart
+- Implemented: Full post-game analysis (FR6 / Should) adhering to §3.9 algorithm:
+  - Evaluation reuse: evaluates each position once and reuses it for ply i and ply i+1
+  - Terminal positions: checkmate (-10000) and stalemate/draw (0) handled without unnecessary engine calls
+  - Win% loss & classification: winPct sigmoid formula, winLoss, classification thresholds (Best < 2 or isEngineTop, Good < 10, Inaccuracy < 20, Mistake < 30, Blunder >= 30)
+  - Accuracy math: moveAccuracy exponential formula (clamped 0..100) and game accuracy arithmetic mean
+  - Interactive EvalGraph: CustomPainter advantage curve with zero line, blunder/mistake dot markers, and tap/drag ply selection
+  - AnalysisScreen: White vs Black accuracy comparison, move breakdown table, move detail banner with classification and suggested best move, board preview, and ply navigation
+  - SQLite persistence: cached analysis JSON automatically saved to `games.analysis_json` via DbService
+- Decisions: pure Dart EvalGraph using CustomPainter (lightweight, zero extra dependencies, fully responsive).
+- Open issues: none
 <!-- STATE:END module:analysis -->
 
 <!-- STATE:BEGIN module:ui -->
@@ -619,7 +627,8 @@ Rules for this section:
   - Storage & PGN: PGN round-trip export/import preserving moves and results, SQLite CRUD operations (`pgn_roundtrip_test.dart` - 2 tests, `db_service_test.dart` - 5 tests)
   - Screens: HistoryScreen & GameReplayScreen navigation/replay (`history_screen_test.dart` - 4 tests)
   - Puzzle: Daily puzzle parsing, starting position derivation, move validation, opponent auto-reply, victory banner, wrong move handling, offline retry (`lichess_api_test.dart` - 4 tests, `puzzle_screen_test.dart` - 6 tests)
-- Total tests: 58 unit and widget tests, 100% passing green.
+  - Post-Game Analysis: winPct, winLoss, classification thresholds, moveAccuracy, mate centipawns, analysis service engine eval and DB persistence, analysis screen UI & ply navigation (`classification_test.dart` - 7 tests, `analysis_service_test.dart` - 2 tests, `analysis_screen_test.dart` - 2 tests)
+- Total tests: 69 unit and widget tests, 100% passing green.
 - Commands: `flutter test`, `dart analyze`, `dart format --output=none --set-exit-if-changed .`
 <!-- STATE:END module:tests -->
 
@@ -648,7 +657,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 70e377d | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |
+| 2026-10-29 | 3b3b11c | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
+| 2026-10-29 | 9963508 | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |
 | 2026-10-29 | fb38922 | puzzle | T-008: Daily puzzle screen, solution verification, opponent auto-reply, offline fallback | status-board, module:api, change-log |
 | 2026-10-29 | 72e99b7 | storage | T-007: SQLite storage, PGN round-trip, History and GameReplay screens | status-board, module:storage, change-log, credits |
 | 2026-10-29 | e04f7d2 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |

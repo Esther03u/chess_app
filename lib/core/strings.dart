@@ -82,4 +82,12 @@ class AppStrings {
       'ไม่สามารถโหลดโจทย์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
   static const String retry = 'ลองใหม่';
   static const String solutionLabel = 'เฉลย: ';
+
+  // Post-Game Analysis (FR6, Should)
+  static const String gameAnalysis = 'วิเคราะห์เกม (Game Analysis)';
+  static const String analyzingGame = 'กำลังวิเคราะห์เกม...';
+  static const String accuracy = 'ความแม่นยำ (Accuracy)';
+  static const String evalGraph = 'กราฟการประเมินแต้ม';
+  static const String bestMoveSuggestion = 'ตาเดินที่ดีกว่า: ';
+  static const String evalScore = 'แต้มประเมิน: ';
 }
