@@ -167,6 +167,12 @@ class GameController extends ChangeNotifier {
 
   PieceInfo? pieceAt(String square) => _game.getPiece(square);
 
+  /// Whether a game is actively being played.
+  bool get isInProgress => history.isNotEmpty && !isGameOver;
+
+  /// Returns current game as PGN string.
+  String toPgn() => _game.toPgn();
+
   /// Configures game mode, player color, and bot difficulty, then resets board.
   void setGameMode(
     GameMode mode, {
@@ -181,6 +187,28 @@ class GameController extends ChangeNotifier {
       _clockController?.reset(timeControl: timeControl);
     }
     reset();
+  }
+
+  /// Starts a vs Bot game with given level (1=Easy, 2=Medium, 3=Hard).
+  void startVsBot({
+    required int level,
+    required PlayerColor playerColor,
+    TimeControl? timeControl,
+  }) {
+    final botLevel = level == 1
+        ? BotLevel.easy
+        : (level == 3 ? BotLevel.hard : BotLevel.medium);
+    setGameMode(
+      GameMode.vsBot,
+      botLevel: botLevel,
+      playerColor: playerColor,
+      timeControl: timeControl,
+    );
+  }
+
+  /// Starts a 2-player Pass & Play game.
+  void startHumanVsHuman({TimeControl? timeControl}) {
+    setGameMode(GameMode.humanVsHuman, timeControl: timeControl);
   }
 
   /// Sets the bot difficulty level (FR2).

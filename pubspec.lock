@@ -329,7 +329,7 @@ packages:
     source: hosted
     version: "2.5.14"
   sqflite_common_ffi:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: sqflite_common_ffi
       sha256: "119d730460264a1f11f414d9eaa43fb686789357e81ce35f9e8ccb66ddd040e4"
@@ -368,14 +368,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.2"
-  stockfish:
-    dependency: "direct main"
-    description:
-      name: stockfish
-      sha256: b27956fa6c21f8637db62411c564d1ba1d0b0e9e27ee928f42a85367da891fa0
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.1"
   stream_channel:
     dependency: transitive
     description:

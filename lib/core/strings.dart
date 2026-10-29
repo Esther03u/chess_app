@@ -90,4 +90,24 @@ class AppStrings {
   static const String evalGraph = 'กราฟการประเมินแต้ม';
   static const String bestMoveSuggestion = 'ตาเดินที่ดีกว่า: ';
   static const String evalScore = 'แต้มประเมิน: ';
+
+  // Hub & Navigation
+  static const String navHome = 'หน้าแรก';
+  static const String navGame = 'กระดาน';
+  static const String navPuzzle = 'พัซเซิล';
+  static const String navHistory = 'ประวัติ';
+  static const String appSlogan = 'ฝึกฝน พัฒนาฝีมือ และท้าทายตนเอง';
+  static const String startGame = 'เริ่มเล่นเกม';
+  static const String chooseSide = 'เลือกฝั่ง';
+  static const String randomSide = 'สุ่มฝั่ง';
+  static const String botDifficulty = 'ระดับความยากของบอท';
+  static const String quickVsBot = 'เล่นกับบอท (Play vs Bot)';
+  static const String quickPassPlay = 'เล่น 2 คน (Pass & Play)';
+  static const String quickDailyPuzzle = 'โจทย์พัซเซิลประจำวัน';
+  static const String solvePuzzleNow = 'แก้โจทย์ทันที';
+  static const String selectLevelPrompt = 'เลือกระดับความยาก';
+  static const String easyDesc = 'ระดับง่าย สำหรับฝึกฝน';
+  static const String mediumDesc = 'ระดับปานกลาง ท้าทายกำลังดี';
+  static const String hardDesc = 'ระดับยาก คำนวณลึก 3 ชั้น';
+  static const String flipBoard = 'กลับด้านกระดาน';
 }

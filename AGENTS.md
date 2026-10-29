@@ -547,12 +547,12 @@ Rules for this section:
 
 <!-- STATE:BEGIN module:board -->
 - Last updated: 2026-10-29
-- Files: lib/domain/game_logic.dart, lib/providers/game_controller.dart, lib/widgets/board_view.dart, lib/screens/game_screen.dart, lib/core/strings.dart, test/domain/game_logic_test.dart
-- Implemented: Full chess rules (castling through check blocked, en passant, promotion with piece selection dialog, check/checkmate, stalemate, threefold repetition, 50-move rule, insufficient material, undo, PGN export), responsive square board view with legal destination/last move/check highlights, 2-player local match screen.
-- Public interface: GameLogic (fen, turn, isInCheck, isCheckmate, isStalemate, isThreefoldRepetition, isInsufficientMaterial, isFiftyMoveRule, isDraw, isGameOver, result, legalMovesFrom, tryMove, undo, reset, loadFen, loadPgn, toPgn)
-- Decisions: verified V2 (`chess` package API 0.8.1 works and covers full rules under MIT/BSD license); responsive square layout using Expanded and AspectRatio.
+- Files: lib/domain/game_logic.dart, lib/providers/game_controller.dart, lib/widgets/board_view.dart, lib/widgets/chess_piece_painter.dart, lib/screens/game_screen.dart, lib/screens/main_hub_screen.dart, lib/core/theme.dart, lib/core/strings.dart, test/domain/game_logic_test.dart
+- Implemented: Full chess rules, responsive square tournament board with bevel frame, custom vector chess pieces (CustomPainter replacing Unicode text glyphs), Main Hub dashboard with 4-tab bottom navigation, quick match selector, in-game action toolbar and game-over analysis flow.
+- Public interface: GameLogic, BoardView, ChessPieceWidget, MainHubScreen.
+- Decisions: Impeccable redesign: tournament-grade dark theme (AppTheme), crisp vector piece paths for King/Queen/Rook/Bishop/Knight/Pawn with gradient shading and contour outlines; MainHubScreen with bottom navigation bar.
 - Open issues: none
-- Manual test steps: open app, play moves on board, observe legal move indicators, test pawn promotion, test check and checkmate, press undo and restart.
+- Manual test steps: Launch app, verify MainHubScreen cards, choose vs Bot level, start game, play moves on vector board, trigger analysis from game over.
 <!-- STATE:END module:board -->
 
 <!-- STATE:BEGIN module:engine -->
@@ -657,7 +657,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 3b3b11c | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
+| 2026-10-29 | (pending) | ui | Impeccable redesign: MainHubScreen with bottom navigation, tournament dark theme, and CustomPainter vector chess pieces | module:board, change-log |
+| 2026-10-29 | 804cea5 | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
 | 2026-10-29 | 9963508 | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |
 | 2026-10-29 | fb38922 | puzzle | T-008: Daily puzzle screen, solution verification, opponent auto-reply, offline fallback | status-board, module:api, change-log |
 | 2026-10-29 | 72e99b7 | storage | T-007: SQLite storage, PGN round-trip, History and GameReplay screens | status-board, module:storage, change-log, credits |

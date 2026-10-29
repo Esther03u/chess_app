@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/theme.dart';
 import '../domain/game_logic.dart';
 import '../providers/game_controller.dart';
+import 'chess_piece_painter.dart';
 
-/// Renders a square 8x8 chessboard with highlights for legal moves,
-/// last move, selected piece, and king in check.
+export 'chess_piece_painter.dart' show ChessPieceWidget;
+
+/// Renders a square 8x8 tournament chessboard with vector pieces,
+/// highlights for legal moves, last move, selected piece, and king in check.
 class BoardView extends StatelessWidget {
   /// Whether the board is flipped (Black perspective at bottom).
   final bool isFlipped;
@@ -19,11 +23,11 @@ class BoardView extends StatelessWidget {
     this.onPromotionRequested,
   });
 
-  static const Color lightSquareColor = Color(0xFFEEEED2);
-  static const Color darkSquareColor = Color(0xFF769656);
-  static const Color selectedSquareColor = Color(0xFFBBCB43);
-  static const Color lastMoveColor = Color(0xFFAAB838);
-  static const Color inCheckColor = Color(0xFFEB6161);
+  static const Color lightSquareColor = AppTheme.boardLight;
+  static const Color darkSquareColor = AppTheme.boardDark;
+  static const Color selectedSquareColor = AppTheme.boardSelected;
+  static const Color lastMoveColor = AppTheme.boardLastMove;
+  static const Color inCheckColor = AppTheme.boardInCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +35,13 @@ class BoardView extends StatelessWidget {
       aspectRatio: 1.0,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.0),
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: const Color(0xFF383531), width: 3.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -150,9 +155,9 @@ class _SquareWidget extends StatelessWidget {
                 child: Text(
                   rank,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: labelColor.withValues(alpha: 0.8),
+                    color: labelColor.withValues(alpha: 0.85),
                   ),
                 ),
               ),
@@ -165,15 +170,21 @@ class _SquareWidget extends StatelessWidget {
                 child: Text(
                   file,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: labelColor.withValues(alpha: 0.8),
+                    color: labelColor.withValues(alpha: 0.85),
                   ),
                 ),
               ),
 
-            // Chess piece
-            if (piece != null) Center(child: ChessPieceWidget(piece: piece!)),
+            // Chess piece (custom vector)
+            if (piece != null)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: ChessPieceWidget(piece: piece!),
+                ),
+              ),
 
             // Legal move indicator
             if (isLegalDestination)
@@ -183,7 +194,7 @@ class _SquareWidget extends StatelessWidget {
                         width: 14,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.22),
+                          color: Colors.black.withValues(alpha: 0.24),
                           shape: BoxShape.circle,
                         ),
                       )
@@ -191,8 +202,8 @@ class _SquareWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            width: 4,
+                            color: Colors.black.withValues(alpha: 0.28),
+                            width: 4.5,
                           ),
                         ),
                       ),
@@ -201,69 +212,5 @@ class _SquareWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class ChessPieceWidget extends StatelessWidget {
-  final PieceInfo piece;
-
-  const ChessPieceWidget({super.key, required this.piece});
-
-  @override
-  Widget build(BuildContext context) {
-    final symbol = _getSymbol(piece);
-    final isWhite = piece.color == PlayerColor.white;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final fontSize = constraints.maxWidth * 0.76;
-        return Text(
-          symbol,
-          style: TextStyle(
-            fontSize: fontSize,
-            height: 1.0,
-            fontFamily: 'serif',
-            color: isWhite ? const Color(0xFFFFFFFF) : const Color(0xFF1E1E1E),
-            shadows: isWhite
-                ? const [
-                    Shadow(
-                      offset: Offset(0.5, 0.5),
-                      blurRadius: 1.5,
-                      color: Color(0xFF222222),
-                    ),
-                    Shadow(
-                      offset: Offset(-0.5, -0.5),
-                      blurRadius: 1.0,
-                      color: Color(0xFF444444),
-                    ),
-                  ]
-                : const [
-                    Shadow(
-                      offset: Offset(0.5, 0.5),
-                      blurRadius: 1.5,
-                      color: Color(0x66FFFFFF),
-                    ),
-                  ],
-          ),
-        );
-      },
-    );
-  }
-
-  static String _getSymbol(PieceInfo piece) {
-    switch (piece.type) {
-      case PieceType.king:
-        return piece.color == PlayerColor.white ? '\u2654' : '\u265A';
-      case PieceType.queen:
-        return piece.color == PlayerColor.white ? '\u2655' : '\u265B';
-      case PieceType.rook:
-        return piece.color == PlayerColor.white ? '\u2656' : '\u265C';
-      case PieceType.bishop:
-        return piece.color == PlayerColor.white ? '\u2657' : '\u265D';
-      case PieceType.knight:
-        return piece.color == PlayerColor.white ? '\u2658' : '\u265E';
-      case PieceType.pawn:
-        return piece.color == PlayerColor.white ? '\u2659' : '\u265F';
-    }
   }
 }

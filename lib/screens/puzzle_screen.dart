@@ -13,8 +13,14 @@ import '../widgets/board_view.dart';
 class PuzzleScreen extends StatefulWidget {
   final LichessApi? api;
   final DailyPuzzle? initialPuzzle;
+  final bool isEmbeddedInHub;
 
-  const PuzzleScreen({super.key, this.api, this.initialPuzzle});
+  const PuzzleScreen({
+    super.key,
+    this.api,
+    this.initialPuzzle,
+    this.isEmbeddedInHub = false,
+  });
 
   @override
   State<PuzzleScreen> createState() => _PuzzleScreenState();
@@ -294,6 +300,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF262421),
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.isEmbeddedInHub,
         title: const Text(
           AppStrings.dailyPuzzle,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

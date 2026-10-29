@@ -9,8 +9,13 @@ import 'analysis_screen.dart';
 /// Screen displaying the history of completed games loaded from SQLite (FR4).
 class HistoryScreen extends StatefulWidget {
   final DbService? dbService;
+  final bool isEmbeddedInHub;
 
-  const HistoryScreen({super.key, this.dbService});
+  const HistoryScreen({
+    super.key,
+    this.dbService,
+    this.isEmbeddedInHub = false,
+  });
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -55,6 +60,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF262421),
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.isEmbeddedInHub,
         title: const Text(
           AppStrings.gameHistory,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),

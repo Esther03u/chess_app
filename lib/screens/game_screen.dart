@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/strings.dart';
+import '../core/theme.dart';
 import '../domain/game_logic.dart';
+import '../models/game_record.dart';
 import '../providers/game_controller.dart';
 import '../widgets/board_view.dart';
 import '../widgets/clock_view.dart';
+import 'analysis_screen.dart';
 import 'history_screen.dart';
 import 'puzzle_screen.dart';
 
 /// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels)
 /// with digital chess clocks, increment, and flag detection (FR3).
 class GameScreen extends StatelessWidget {
-  const GameScreen({super.key});
+  final bool isEmbeddedInHub;
+
+  const GameScreen({super.key, this.isEmbeddedInHub = false});
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +47,15 @@ class GameScreen extends StatelessWidget {
             : (isFlipped ? AppStrings.black : AppStrings.white);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF262421),
+          backgroundColor: AppTheme.background,
           appBar: AppBar(
+            automaticallyImplyLeading: !isEmbeddedInHub,
             title: Text(
               modeTitle,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            backgroundColor: const Color(0xFF1E1E1E),
-            foregroundColor: Colors.white,
+            backgroundColor: AppTheme.surface,
+            foregroundColor: AppTheme.textPrimary,
             elevation: 0,
             actions: [
               IconButton(
@@ -324,6 +330,63 @@ class GameScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, GameController controller) {
+    if (controller.isGameOver) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.insights, size: 18),
+                label: const Text(AppStrings.gameAnalysis),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.accentAmberDark,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: () {
+                  final record = GameRecord(
+                    pgn: controller.toPgn(),
+                    white: controller.gameMode == GameMode.vsBot
+                        ? (controller.playerColor == PlayerColor.white
+                              ? 'คุณ'
+                              : 'บอท')
+                        : AppStrings.white,
+                    black: controller.gameMode == GameMode.vsBot
+                        ? (controller.playerColor == PlayerColor.black
+                              ? 'คุณ'
+                              : 'บอท')
+                        : AppStrings.black,
+                    result: controller.result ?? '*',
+                    timeControl: controller.clock?.timeControl.label,
+                    playedAt: DateTime.now().millisecondsSinceEpoch,
+                  );
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => AnalysisScreen(record: record),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text(AppStrings.restart),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: () => _confirmRestart(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final canUndo =
         controller.history.isNotEmpty &&
         !controller.isGameOver &&
@@ -345,7 +408,13 @@ class GameScreen extends StatelessWidget {
               onPressed: canUndo ? () => controller.undo() : null,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
+          IconButton.filledTonal(
+            tooltip: AppStrings.timeControl,
+            icon: const Icon(Icons.tune, size: 20),
+            onPressed: () => _showGameModeDialog(context, controller),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: ElevatedButton.icon(
               icon: const Icon(Icons.flag_outlined, size: 18),

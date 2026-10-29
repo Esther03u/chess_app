@@ -1,12 +1,22 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'core/strings.dart';
+import 'core/theme.dart';
 import 'providers/clock_controller.dart';
 import 'providers/game_controller.dart';
-import 'screens/game_screen.dart';
+import 'screens/main_hub_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
   runApp(const ChessApp());
 }
 
@@ -33,17 +43,8 @@ class ChessApp extends StatelessWidget {
       child: MaterialApp(
         title: AppStrings.appTitle,
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          primaryColor: const Color(0xFF769656),
-          scaffoldBackgroundColor: const Color(0xFF262421),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF769656),
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-        ),
-        home: const GameScreen(),
+        theme: AppTheme.darkTheme,
+        home: const MainHubScreen(),
       ),
     );
   }
