@@ -6,6 +6,7 @@ import '../models/customization_options.dart';
 
 /// Renders chess pieces with high legibility, supporting multiple style presets
 /// (Staunton Standard, Tournament Shaded, Modern Minimalist, Retro Unicode).
+/// Features crisp high-contrast interior lines on Black pieces for instant readability.
 class ChessPieceWidget extends StatelessWidget {
   final PieceInfo piece;
   final double? size;
@@ -108,13 +109,13 @@ class _VectorPiecePainter extends CustomPainter {
     // Base colors
     final fillTop = isWhite
         ? (isMinimalist ? const Color(0xFFFFFFFF) : AppTheme.whitePieceFill)
-        : (isMinimalist ? const Color(0xFF22201D) : AppTheme.blackPieceFill);
+        : (isMinimalist ? const Color(0xFF1E1C1A) : AppTheme.blackPieceFill);
     final fillBottom = isWhite
-        ? (isShaded ? AppTheme.whitePieceGradient : const Color(0xFFF4F3EE))
-        : (isShaded ? AppTheme.blackPieceGradient : const Color(0xFF2E2B27));
+        ? (isShaded ? AppTheme.whitePieceGradient : const Color(0xFFF0EEE6))
+        : (isShaded ? AppTheme.blackPieceGradient : const Color(0xFF141312));
     final strokeColor = isWhite
         ? (isMinimalist ? const Color(0xFF1E1E1E) : AppTheme.whitePieceBorder)
-        : (isMinimalist ? const Color(0xFFFFFFFF) : AppTheme.blackPieceBorder);
+        : (isMinimalist ? const Color(0xFFE8E5DC) : AppTheme.blackPieceBorder);
 
     final fillPaint = Paint()..style = PaintingStyle.fill;
 
@@ -131,15 +132,18 @@ class _VectorPiecePainter extends CustomPainter {
     final strokePaint = Paint()
       ..color = strokeColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = (w * (isMinimalist ? 0.05 : 0.04)).clamp(1.5, 3.2)
+      ..strokeWidth = (w * (isMinimalist ? 0.052 : 0.042)).clamp(1.6, 3.2)
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
+    // Contrast detail lines: White on Black pieces, Dark on White pieces!
+    final detailColor = isWhite ? strokeColor : Colors.white;
     final detailPaint = Paint()
-      ..color = strokeColor
+      ..color = detailColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = (w * 0.03).clamp(1.0, 2.2)
-      ..strokeCap = StrokeCap.round;
+      ..strokeWidth = (w * (isMinimalist ? 0.042 : 0.036)).clamp(1.3, 2.5)
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
     // Ambient drop shadow for depth
     if (isShaded) {
@@ -168,7 +172,7 @@ class _VectorPiecePainter extends CustomPainter {
           fillPaint,
           strokePaint,
           detailPaint,
-          strokeColor,
+          detailColor,
         );
         break;
       case PieceType.bishop:
@@ -181,7 +185,15 @@ class _VectorPiecePainter extends CustomPainter {
         _drawQueen(canvas, w, h, fillPaint, strokePaint, detailPaint);
         break;
       case PieceType.king:
-        _drawKing(canvas, w, h, fillPaint, strokePaint, detailPaint);
+        _drawKing(
+          canvas,
+          w,
+          h,
+          fillPaint,
+          strokePaint,
+          detailPaint,
+          detailColor,
+        );
         break;
     }
   }
@@ -218,7 +230,7 @@ class _VectorPiecePainter extends CustomPainter {
         Rect.fromLTWH(w * 0.32, h * 0.44, w * 0.36, h * 0.07),
         Radius.circular(w * 0.03),
       ),
-      stroke,
+      isWhite ? stroke : detail,
     );
 
     // Body taper
@@ -232,7 +244,7 @@ class _VectorPiecePainter extends CustomPainter {
     canvas.drawPath(body, stroke);
 
     // Head sphere
-    final headCenter = Offset(w * 0.50, h * 0.30);
+    final headCenter = Offset(w * 0.50, h * 0.29);
     final headRadius = w * 0.17;
     canvas.drawCircle(headCenter, headRadius, fill);
     canvas.drawCircle(headCenter, headRadius, stroke);
@@ -246,7 +258,7 @@ class _VectorPiecePainter extends CustomPainter {
     Paint fill,
     Paint stroke,
     Paint detail,
-    Color strokeColor,
+    Color detailColor,
   ) {
     // Pedestal base
     final basePath = Path()
@@ -258,7 +270,7 @@ class _VectorPiecePainter extends CustomPainter {
     canvas.drawPath(basePath, fill);
     canvas.drawPath(basePath, stroke);
 
-    // Iconic Staunton Horse Profile
+    // Iconic Staunton Horse Profile facing left
     final horse = Path()
       ..moveTo(w * 0.28, h * 0.80) // bottom chest
       ..quadraticBezierTo(w * 0.25, h * 0.68, w * 0.30, h * 0.58) // throat
@@ -274,11 +286,11 @@ class _VectorPiecePainter extends CustomPainter {
     canvas.drawPath(horse, fill);
     canvas.drawPath(horse, stroke);
 
-    // Knight Eye
+    // Knight Eye (White on black horse, black on white horse)
     final eyePaint = Paint()
-      ..color = strokeColor
+      ..color = detailColor
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(w * 0.38, h * 0.40), w * 0.038, eyePaint);
+    canvas.drawCircle(Offset(w * 0.38, h * 0.40), w * 0.045, eyePaint);
 
     // Mouth / jaw slit
     canvas.drawLine(
@@ -332,7 +344,7 @@ class _VectorPiecePainter extends CustomPainter {
         Rect.fromLTWH(w * 0.30, h * 0.72, w * 0.40, h * 0.08),
         Radius.circular(w * 0.03),
       ),
-      stroke,
+      isWhite ? stroke : detail,
     );
 
     // Mitre body (distinctive pointed oval)
@@ -346,7 +358,11 @@ class _VectorPiecePainter extends CustomPainter {
 
     // Finial ball on top of mitre
     canvas.drawCircle(Offset(w * 0.50, h * 0.17), w * 0.055, fill);
-    canvas.drawCircle(Offset(w * 0.50, h * 0.17), w * 0.055, stroke);
+    canvas.drawCircle(
+      Offset(w * 0.50, h * 0.17),
+      w * 0.055,
+      isWhite ? stroke : detail,
+    );
 
     // Deep Mitre Cut (defining characteristic of chess bishop)
     canvas.drawLine(
@@ -473,7 +489,7 @@ class _VectorPiecePainter extends CustomPainter {
     ];
     for (final pearl in pearls) {
       canvas.drawCircle(pearl, w * 0.038, fill);
-      canvas.drawCircle(pearl, w * 0.038, stroke);
+      canvas.drawCircle(pearl, w * 0.038, isWhite ? stroke : detail);
     }
   }
 
@@ -485,6 +501,7 @@ class _VectorPiecePainter extends CustomPainter {
     Paint fill,
     Paint stroke,
     Paint detail,
+    Color detailColor,
   ) {
     // Pedestal base
     final basePath = Path()
@@ -519,9 +536,9 @@ class _VectorPiecePainter extends CustomPainter {
     canvas.drawPath(crown, fill);
     canvas.drawPath(crown, stroke);
 
-    // The Royal Cross (Prominent, unmistakable symbol of the King)
+    // The Royal Cross (Bright white on black king, dark on white king)
     final crossPaint = Paint()
-      ..color = stroke.color
+      ..color = detailColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = (w * 0.055).clamp(2.2, 3.8)
       ..strokeCap = StrokeCap.square;

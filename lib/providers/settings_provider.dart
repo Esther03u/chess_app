@@ -30,7 +30,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get isLoaded => _isLoaded;
 
   SettingsProvider({DbService? dbService, bool autoInit = true})
-      : _dbService = dbService ?? DbService() {
+    : _dbService = dbService ?? DbService() {
     if (autoInit) {
       init();
     }

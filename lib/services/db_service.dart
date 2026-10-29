@@ -140,21 +140,16 @@ class DbService {
   /// Sets or updates a setting key-value pair in SQLite.
   Future<void> setSetting(String key, String value) async {
     final db = await database;
-    await db.insert(
-      settingsTableName,
-      {'key': key, 'value': value},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert(settingsTableName, {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Removes a setting by key.
   Future<void> removeSetting(String key) async {
     final db = await database;
-    await db.delete(
-      settingsTableName,
-      where: 'key = ?',
-      whereArgs: [key],
-    );
+    await db.delete(settingsTableName, where: 'key = ?', whereArgs: [key]);
   }
 
   /// Closes database connection.

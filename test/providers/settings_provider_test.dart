@@ -110,15 +110,18 @@ void main() {
       expect(settings.enableMoveAnimation, isTrue);
     });
 
-    test('BoardThemePreset and PieceStylePreset fromId fallback gracefully', () {
-      expect(
-        BoardThemePreset.fromId('unknown_theme'),
-        equals(BoardThemePreset.tournamentGreen),
-      );
-      expect(
-        PieceStylePreset.fromId('unknown_style'),
-        equals(PieceStylePreset.staunton),
-      );
-    });
+    test(
+      'BoardThemePreset and PieceStylePreset fromId fallback gracefully',
+      () {
+        expect(
+          BoardThemePreset.fromId('unknown_theme'),
+          equals(BoardThemePreset.tournamentGreen),
+        );
+        expect(
+          PieceStylePreset.fromId('unknown_style'),
+          equals(PieceStylePreset.staunton),
+        );
+      },
+    );
   });
 }

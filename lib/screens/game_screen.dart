@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import '../core/strings.dart';
 import '../core/theme.dart';
 import '../domain/game_logic.dart';
+import '../models/customization_options.dart';
 import '../models/game_record.dart';
 import '../providers/game_controller.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/board_view.dart';
-import '../widgets/clock_view.dart';
+import '../widgets/player_profile_bar.dart';
 import 'analysis_screen.dart';
 import 'history_screen.dart';
 import 'puzzle_screen.dart';
@@ -46,6 +48,41 @@ class GameScreen extends StatelessWidget {
                   ? 'บอท (${_botLevelLabel(controller.botLevel)})'
                   : 'คุณ (หมากขาว)')
             : (isFlipped ? AppStrings.black : AppStrings.white);
+
+        SettingsProvider? settings;
+        try {
+          settings = context.watch<SettingsProvider>();
+        } catch (_) {}
+        final pieceStyle = settings?.pieceStyle ?? PieceStylePreset.staunton;
+
+        // Player details
+        final isVsBot = controller.gameMode == GameMode.vsBot;
+        final topIsBot = isVsBot && !isFlipped;
+        final bottomIsBot = isVsBot && isFlipped;
+
+        final topCaptured = topColor == PlayerColor.white
+            ? controller.capturedByWhite
+            : controller.capturedByBlack;
+        final bottomCaptured = bottomColor == PlayerColor.white
+            ? controller.capturedByWhite
+            : controller.capturedByBlack;
+
+        final topAdvantage = topColor == PlayerColor.white
+            ? (controller.materialAdvantage > 0
+                  ? controller.materialAdvantage
+                  : 0)
+            : (controller.materialAdvantage < 0
+                  ? -controller.materialAdvantage
+                  : 0);
+        final bottomAdvantage = bottomColor == PlayerColor.white
+            ? (controller.materialAdvantage > 0
+                  ? controller.materialAdvantage
+                  : 0)
+            : (controller.materialAdvantage < 0
+                  ? -controller.materialAdvantage
+                  : 0);
+
+        final botQuote = _getBotQuote(controller.botLevel);
 
         return Scaffold(
           backgroundColor: AppTheme.background,
@@ -102,75 +139,48 @@ class GameScreen extends StatelessWidget {
             ],
           ),
           body: SafeArea(
-            child: Column(
-              children: [
-                // Top status bar
-                _buildStatusBar(context, controller),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWideScreen = constraints.maxWidth >= 760;
 
-                // Top player clock bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 4.0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        topName,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      ClockView(color: topColor, playerName: ''),
-                    ],
-                  ),
-                ),
+                if (isWideScreen) {
+                  return _buildDesktopLayout(
+                    context,
+                    controller,
+                    topName: topName,
+                    bottomName: bottomName,
+                    topColor: topColor,
+                    bottomColor: bottomColor,
+                    topIsBot: topIsBot,
+                    bottomIsBot: bottomIsBot,
+                    topCaptured: topCaptured,
+                    bottomCaptured: bottomCaptured,
+                    topAdvantage: topAdvantage,
+                    bottomAdvantage: bottomAdvantage,
+                    isFlipped: isFlipped,
+                    pieceStyle: pieceStyle,
+                    botQuote: botQuote,
+                  );
+                }
 
-                // Chess board in center (responsive square, fits available height and width)
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: BoardView(
-                        isFlipped: isFlipped,
-                        onPromotionRequested: () =>
-                            _showPromotionDialog(context, controller.turn),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Bottom player clock bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 4.0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        bottomName,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      ClockView(color: bottomColor, playerName: ''),
-                    ],
-                  ),
-                ),
-
-                // Move history
-                _buildMoveHistory(controller),
-
-                // Action buttons (Undo, Resign)
-                _buildActionButtons(context, controller),
-              ],
+                return _buildMobileLayout(
+                  context,
+                  controller,
+                  topName: topName,
+                  bottomName: bottomName,
+                  topColor: topColor,
+                  bottomColor: bottomColor,
+                  topIsBot: topIsBot,
+                  bottomIsBot: bottomIsBot,
+                  topCaptured: topCaptured,
+                  bottomCaptured: bottomCaptured,
+                  topAdvantage: topAdvantage,
+                  bottomAdvantage: bottomAdvantage,
+                  isFlipped: isFlipped,
+                  pieceStyle: pieceStyle,
+                  botQuote: botQuote,
+                );
+              },
             ),
           ),
         );
@@ -187,6 +197,399 @@ class GameScreen extends StatelessWidget {
       case BotLevel.hard:
         return 'ยาก';
     }
+  }
+
+  static String _getBotQuote(BotLevel level) {
+    switch (level) {
+      case BotLevel.easy:
+        return 'ยินดีที่ได้เล่นด้วยกันนะ! มาสนุกกับเกมนี้กันเถอะ';
+      case BotLevel.medium:
+        return 'รูปเกมกำลังน่าสนใจ ระวังการบุกที่มุมบอร์ดให้ดีล่ะ!';
+      case BotLevel.hard:
+        return 'ฉันคำนวณการเดินล่วงหน้าไว้แล้ว ทุกก้าวมีความหมาย!';
+    }
+  }
+
+  /// Mobile layout: Vertical stack optimized for handheld play with player profile bars
+  Widget _buildMobileLayout(
+    BuildContext context,
+    GameController controller, {
+    required String topName,
+    required String bottomName,
+    required PlayerColor topColor,
+    required PlayerColor bottomColor,
+    required bool topIsBot,
+    required bool bottomIsBot,
+    required List<PieceType> topCaptured,
+    required List<PieceType> bottomCaptured,
+    required int topAdvantage,
+    required int bottomAdvantage,
+    required bool isFlipped,
+    required PieceStylePreset pieceStyle,
+    required String botQuote,
+  }) {
+    return Column(
+      children: [
+        // 1. Status bar with check / timeout alerts
+        _buildStatusBar(context, controller),
+
+        // 2. Top Player Profile Bar (Opponent / Bot)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          child: PlayerProfileBar(
+            color: topColor,
+            name: topName,
+            subtitle: topIsBot
+                ? 'บอท (${_botLevelLabel(controller.botLevel)})'
+                : null,
+            isBot: topIsBot,
+            botLevel: topIsBot ? controller.botLevel : null,
+            capturedPieces: topCaptured,
+            materialAdvantage: topAdvantage,
+            isTurn: controller.turn == topColor && !controller.isGameOver,
+            pieceStyle: pieceStyle,
+          ),
+        ),
+
+        // 3. Chess Board in Center
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: BoardView(
+                isFlipped: isFlipped,
+                onPromotionRequested: () =>
+                    _showPromotionDialog(context, controller.turn),
+              ),
+            ),
+          ),
+        ),
+
+        // 4. Bottom Player Profile Bar (User)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          child: PlayerProfileBar(
+            color: bottomColor,
+            name: bottomName,
+            subtitle: bottomIsBot
+                ? 'บอท (${_botLevelLabel(controller.botLevel)})'
+                : 'ผู้เล่น',
+            isBot: bottomIsBot,
+            botLevel: bottomIsBot ? controller.botLevel : null,
+            capturedPieces: bottomCaptured,
+            materialAdvantage: bottomAdvantage,
+            isTurn: controller.turn == bottomColor && !controller.isGameOver,
+            pieceStyle: pieceStyle,
+          ),
+        ),
+
+        // 5. Move history strip
+        _buildMoveHistory(controller),
+
+        // 6. Action buttons (Undo, Resign, TimeControl)
+        _buildActionButtons(context, controller),
+      ],
+    );
+  }
+
+  /// Desktop layout: Left side board with player frames, Right side Chess.com sidebar
+  Widget _buildDesktopLayout(
+    BuildContext context,
+    GameController controller, {
+    required String topName,
+    required String bottomName,
+    required PlayerColor topColor,
+    required PlayerColor bottomColor,
+    required bool topIsBot,
+    required bool bottomIsBot,
+    required List<PieceType> topCaptured,
+    required List<PieceType> bottomCaptured,
+    required int topAdvantage,
+    required int bottomAdvantage,
+    required bool isFlipped,
+    required PieceStylePreset pieceStyle,
+    required String botQuote,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Left Arena: Top Player Bar + Square Board + Bottom Player Bar
+          Expanded(
+            flex: 6,
+            child: Column(
+              children: [
+                // Top Player Profile Bar
+                PlayerProfileBar(
+                  color: topColor,
+                  name: topName,
+                  subtitle: topIsBot
+                      ? 'บอท (${_botLevelLabel(controller.botLevel)})'
+                      : null,
+                  isBot: topIsBot,
+                  botLevel: topIsBot ? controller.botLevel : null,
+                  capturedPieces: topCaptured,
+                  materialAdvantage: topAdvantage,
+                  isTurn: controller.turn == topColor && !controller.isGameOver,
+                  pieceStyle: pieceStyle,
+                ),
+                const SizedBox(height: 8),
+
+                // Center Square Chess Board
+                Expanded(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1.0,
+                      child: BoardView(
+                        isFlipped: isFlipped,
+                        onPromotionRequested: () =>
+                            _showPromotionDialog(context, controller.turn),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Bottom Player Profile Bar
+                PlayerProfileBar(
+                  color: bottomColor,
+                  name: bottomName,
+                  subtitle: bottomIsBot
+                      ? 'บอท (${_botLevelLabel(controller.botLevel)})'
+                      : 'ผู้เล่น',
+                  isBot: bottomIsBot,
+                  botLevel: bottomIsBot ? controller.botLevel : null,
+                  capturedPieces: bottomCaptured,
+                  materialAdvantage: bottomAdvantage,
+                  isTurn:
+                      controller.turn == bottomColor && !controller.isGameOver,
+                  pieceStyle: pieceStyle,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Right Sidebar: Chess.com style panel (Bot speech bubble + Moves table + Actions)
+          Expanded(
+            flex: 4,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceCard,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Bot Persona Speech Bubble (Chess.com play/computer style)
+                  if (controller.gameMode == GameMode.vsBot)
+                    Container(
+                      padding: const EdgeInsets.all(14.0),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.surfaceVariant,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF383531),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppTheme.primaryGreen),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.smart_toy,
+                                color: AppTheme.primaryGreen,
+                                size: 26,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      topIsBot ? topName : bottomName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 1.5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryGreenDark,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        controller.botLevel == BotLevel.easy
+                                            ? '400'
+                                            : (controller.botLevel ==
+                                                      BotLevel.medium
+                                                  ? '1200'
+                                                  : '1800'),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.surfaceCard,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: AppTheme.border),
+                                  ),
+                                  child: Text(
+                                    botQuote,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Game Status Bar
+                  _buildStatusBar(context, controller),
+
+                  // Move History Table (Scrollable full height)
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 6.0,
+                      ),
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceVariant,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(color: AppTheme.border),
+                      ),
+                      child: controller.history.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'ยังไม่มีตาเดิน (เริ่มเดินหมากได้เลย)',
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: (controller.history.length / 2).ceil(),
+                              itemBuilder: (context, index) {
+                                final moveNumber = index + 1;
+                                final whiteMove = controller.history[index * 2];
+                                final blackMove =
+                                    (index * 2 + 1 < controller.history.length)
+                                    ? controller.history[index * 2 + 1]
+                                    : '';
+                                final isLatest =
+                                    index ==
+                                    (controller.history.length / 2).ceil() - 1;
+
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 6.0,
+                                  ),
+                                  color: isLatest
+                                      ? AppTheme.primaryGreen.withValues(
+                                          alpha: 0.15,
+                                        )
+                                      : (index % 2 == 0
+                                            ? Colors.transparent
+                                            : Colors.white.withValues(
+                                                alpha: 0.02,
+                                              )),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 32,
+                                        child: Text(
+                                          '$moveNumber.',
+                                          style: const TextStyle(
+                                            color: Colors.white38,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          whiteMove,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          blackMove,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+
+                  // Action Toolbar (Undo, Resign, Restart, Analysis)
+                  _buildActionButtons(context, controller),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStatusBar(BuildContext context, GameController controller) {

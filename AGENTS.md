@@ -612,13 +612,13 @@ Rules for this section:
 
 <!-- STATE:BEGIN module:ui -->
 - Last updated: 2026-10-29
-- Files: lib/core/theme.dart, lib/widgets/chess_piece_painter.dart, lib/widgets/board_view.dart, lib/widgets/clock_view.dart, lib/widgets/eval_graph.dart, lib/screens/main_hub_screen.dart, lib/screens/game_screen.dart, lib/screens/history_screen.dart, lib/screens/puzzle_screen.dart, lib/screens/analysis_screen.dart
-- Implemented: Complete Impeccable Technical Audit and UX Refinement:
-  - 100% Theme Token Migration: Eliminated all raw hardcoded hex colors across all widgets and screens, standardizing exclusively on `AppTheme` design tokens (tournament dark palette).
-  - Accessibility & Semantics: Full TalkBack/VoiceOver support on chessboard squares (announces file, rank, piece color, piece type, selection state, legal moves, check), clock view, and primary buttons.
-  - Vector Piece Engine: Upgraded piece rendering in game replay screen to match main board with vector `ChessPieceWidget`.
-  - Visual Hierarchy & Layout: Polished card spacing, contrast ratios, and edge-to-edge responsiveness on small/large screens.
-- Decisions: Full consolidation of color tokens in `AppTheme`; screen-reader announcements on interactive squares.
+- Files: lib/screens/game_screen.dart, lib/widgets/player_profile_bar.dart, lib/widgets/board_view.dart, lib/widgets/chess_piece_painter.dart, lib/providers/settings_provider.dart, lib/models/customization_options.dart, lib/screens/settings_screen.dart
+- Implemented: Complete Chess.com Reverse-Engineered UX & Layout Architecture:
+  - Responsive Dual-Column Desktop Layout: When viewport width >= 760px, board occupies left arena with top/bottom player profile bars; right column features Chess.com bot personality card, speech bubble quotes, status banner, scrollable vertical move history table, and game action toolbar. Mobile retains vertical stack.
+  - Player Profile Framing: Top & bottom `PlayerProfileBar` displaying player avatar, bot rating chip (400, 1200, 1800), captured pieces mini strip, real-time material advantage badge (`+1`, `+3`), active turn indicator, and integrated digital clock.
+  - High-Contrast Staunton Vector Pieces: Black pieces redesigned with crisp interior white contour details (King cross, Queen pearls, Bishop slit, Knight eye & mane, Rook battlements, Pawn collar), resolving legibility issues on any board theme.
+  - Customization Suite: 5 tournament board themes (Tournament Green, Classic Wood, Dark Slate, Oceanic Blue, Royal Amethyst), 4 piece style presets (Staunton, Shaded, Minimalist, Retro Unicode), embedded square coordinates, legal move hints, move animation toggles, backed by SQLite settings persistence.
+- Decisions: Clean-room black-box reverse engineering of Chess.com layout and interaction patterns without scraping or copying proprietary assets.
 - Open issues: none
 <!-- STATE:END module:ui -->
 
@@ -631,9 +631,10 @@ Rules for this section:
   - Clock: increment addition (+2s, +10s), flag detection (loss on time 0-1 / 1-0), unlimited mode, pause/resume, FakeClockTicker (`clock_controller_test.dart` - 7 tests)
   - Storage & PGN: PGN round-trip export/import preserving moves and results, SQLite CRUD operations (`pgn_roundtrip_test.dart` - 2 tests, `db_service_test.dart` - 5 tests)
   - Screens: HistoryScreen & GameReplayScreen navigation/replay (`history_screen_test.dart` - 4 tests)
+  - Settings: SQLite-backed SettingsProvider load/save for themes, piece styles, coordinates, and animations (`settings_provider_test.dart` - 6 tests)
   - Puzzle: Daily puzzle parsing, starting position derivation, move validation, opponent auto-reply, victory banner, wrong move handling, offline retry (`lichess_api_test.dart` - 4 tests, `puzzle_screen_test.dart` - 6 tests)
   - Post-Game Analysis: winPct, winLoss, classification thresholds, moveAccuracy, mate centipawns, analysis service engine eval and DB persistence, analysis screen UI & ply navigation (`classification_test.dart` - 7 tests, `analysis_service_test.dart` - 2 tests, `analysis_screen_test.dart` - 2 tests)
-- Total tests: 69 unit and widget tests, 100% passing green.
+- Total tests: 75 unit and widget tests, 100% passing green.
 - Commands: `flutter test`, `dart analyze`, `dart format --output=none --set-exit-if-changed .`
 <!-- STATE:END module:tests -->
 
@@ -662,7 +663,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | (pending) | ui | Customization system: 5 board themes, 4 piece styles (Staunton, Shaded, Minimalist, Unicode), move animations, SettingsScreen with live preview | module:ui, change-log, credits |
+| 2026-10-29 | (pending) | ui | feat(layout): responsive chess.com layout with player profile framing, captured pieces, and bot personas | module:ui, module:tests, credits, change-log |
+| 2026-10-29 | 950e73d | ui | Customization system: 5 board themes, 4 piece styles, settings persistence in SQLite | module:ui, change-log |
 | 2026-10-29 | 7368b3b | ui | Impeccable technical audit: 100% theme token consolidation, TalkBack/VoiceOver semantics, and vector pieces in replay screen | module:ui, change-log |
 | 2026-10-29 | 6c29a38 | ui | Impeccable redesign: MainHubScreen with bottom navigation, tournament dark theme, and CustomPainter vector chess pieces | module:board, change-log |
 | 2026-10-29 | 804cea5 | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
@@ -688,9 +690,8 @@ Rules for this section:
 | stockfish | 1.8.1 | native Android engine | GPL-3.0 | https://pub.dev/packages/stockfish | 2026-10-29 |
 | dio | 5.11.1 | HTTP | MIT | https://pub.dev/packages/dio | 2026-10-29 |
 | provider | 6.1.5+1 | state | MIT | https://pub.dev/packages/provider | 2026-10-29 |
-| sqflite | 2.4.5 | local SQLite DB | BSD-2-Clause | https://pub.dev/packages/sqflite | 2026-10-29 |
+| sqflite | 2.4.5 | local SQLite DB & settings persistence | BSD-2-Clause | https://pub.dev/packages/sqflite | 2026-10-29 |
 | path | 1.9.1 | path manipulation | BSD-3-Clause | https://pub.dev/packages/path | 2026-10-29 |
-| shared_preferences | 2.5.6 | settings persistence | BSD-3-Clause | https://pub.dev/packages/shared_preferences | 2026-10-29 |
 
 | Asset / service | Author | License | Required attribution | Source URL |
 |---|---|---|---|---|

@@ -230,6 +230,90 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Counts non-king pieces of a given color currently on the board.
+  Map<PieceType, int> _countPieces(PlayerColor color) {
+    final counts = <PieceType, int>{
+      PieceType.pawn: 0,
+      PieceType.knight: 0,
+      PieceType.bishop: 0,
+      PieceType.rook: 0,
+      PieceType.queen: 0,
+    };
+    for (int file = 0; file < 8; file++) {
+      for (int rank = 1; rank <= 8; rank++) {
+        final square = '${String.fromCharCode('a'.codeUnitAt(0) + file)}$rank';
+        final piece = _game.getPiece(square);
+        if (piece != null &&
+            piece.color == color &&
+            piece.type != PieceType.king) {
+          counts[piece.type] = (counts[piece.type] ?? 0) + 1;
+        }
+      }
+    }
+    return counts;
+  }
+
+  /// Black pieces captured by White
+  List<PieceType> get capturedByWhite {
+    final onBoard = _countPieces(PlayerColor.black);
+    final initial = {
+      PieceType.queen: 1,
+      PieceType.rook: 2,
+      PieceType.bishop: 2,
+      PieceType.knight: 2,
+      PieceType.pawn: 8,
+    };
+    final captured = <PieceType>[];
+    for (final entry in initial.entries) {
+      final diff = entry.value - (onBoard[entry.key] ?? 0);
+      for (int i = 0; i < diff; i++) {
+        captured.add(entry.key);
+      }
+    }
+    return captured;
+  }
+
+  /// White pieces captured by Black
+  List<PieceType> get capturedByBlack {
+    final onBoard = _countPieces(PlayerColor.white);
+    final initial = {
+      PieceType.queen: 1,
+      PieceType.rook: 2,
+      PieceType.bishop: 2,
+      PieceType.knight: 2,
+      PieceType.pawn: 8,
+    };
+    final captured = <PieceType>[];
+    for (final entry in initial.entries) {
+      final diff = entry.value - (onBoard[entry.key] ?? 0);
+      for (int i = 0; i < diff; i++) {
+        captured.add(entry.key);
+      }
+    }
+    return captured;
+  }
+
+  int get whiteMaterialPoints {
+    final counts = _countPieces(PlayerColor.white);
+    return (counts[PieceType.pawn] ?? 0) * 1 +
+        (counts[PieceType.knight] ?? 0) * 3 +
+        (counts[PieceType.bishop] ?? 0) * 3 +
+        (counts[PieceType.rook] ?? 0) * 5 +
+        (counts[PieceType.queen] ?? 0) * 9;
+  }
+
+  int get blackMaterialPoints {
+    final counts = _countPieces(PlayerColor.black);
+    return (counts[PieceType.pawn] ?? 0) * 1 +
+        (counts[PieceType.knight] ?? 0) * 3 +
+        (counts[PieceType.bishop] ?? 0) * 3 +
+        (counts[PieceType.rook] ?? 0) * 5 +
+        (counts[PieceType.queen] ?? 0) * 9;
+  }
+
+  /// Material difference (+ for White, - for Black).
+  int get materialAdvantage => whiteMaterialPoints - blackMaterialPoints;
+
   /// Automatically persists completed game to SQLite (FR4).
   Future<int?> saveGameToHistory() async {
     if (_hasSavedToDb || history.isEmpty) return null;
