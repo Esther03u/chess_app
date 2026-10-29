@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/strings.dart';
+import 'providers/clock_controller.dart';
 import 'providers/game_controller.dart';
 import 'screens/game_screen.dart';
 
@@ -15,7 +16,20 @@ class ChessApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => GameController())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ClockController()),
+        ChangeNotifierProxyProvider<ClockController, GameController>(
+          create: (ctx) =>
+              GameController(clockController: ctx.read<ClockController>()),
+          update: (_, clock, game) {
+            if (game != null) {
+              game.attachClock(clock);
+              return game;
+            }
+            return GameController(clockController: clock);
+          },
+        ),
+      ],
       child: MaterialApp(
         title: AppStrings.appTitle,
         debugShowCheckedModeBanner: false,

@@ -49,4 +49,14 @@ class AppStrings {
   static const String botThinking = 'บอทกำลังคิด...';
   static const String playerWon = 'คุณชนะ!';
   static const String botWon = 'บอทชนะ!';
+
+  // Clock & Time Control
+  static const String timeControl = 'การตั้งเวลา';
+  static const String unlimited = 'ไม่จำกัดเวลา (Unlimited)';
+  static const String blitz3p2 = '3 นาที + 2 วิ (Blitz)';
+  static const String blitz5p0 = '5 นาที (Blitz)';
+  static const String rapid10p0 = '10 นาที (Rapid)';
+  static const String rapid15p10 = '15 นาที + 10 วิ (Rapid)';
+  static const String whiteTimedOut = 'หมากขาวหมดเวลา - หมากดำชนะ (0-1)';
+  static const String blackTimedOut = 'หมากดำหมดเวลา - หมากขาวชนะ (1-0)';
 }

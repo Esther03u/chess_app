@@ -535,7 +535,7 @@ Rules for this section:
 | Board & Rules | Must | T-003 | done | 2026-10-29 | FR1 unit tests passed; 2-player board UI complete |
 | Puzzle API spike | Must | T-004 | done | 2026-10-29 | Real fixture verified; parser and error handling complete |
 | Engine / Bot | Must | T-005 | done | 2026-10-29 | Pure Dart Minimax engine with 3 levels, off-thread compute, 5/5 wins Hard vs Easy |
-| Clock | Must | T-006 | todo | — | |
+| Clock | Must | T-006 | done | 2026-10-29 | Chess clock with increment, flag detection, FakeClockTicker, and UI |
 | Storage | Must | T-007 | todo | — | |
 | Puzzle screen | Must | T-008 | todo | — | |
 | Tests & quality | Must | T-009 | todo | — | |
@@ -566,12 +566,12 @@ Rules for this section:
 <!-- STATE:END module:engine -->
 
 <!-- STATE:BEGIN module:clock -->
-- Last updated: —
-- Files: —
-- Implemented: —
-- Decisions: —
-- Open issues: —
-- Manual test steps: —
+- Last updated: 2026-10-29
+- Files: lib/providers/clock_controller.dart, lib/widgets/clock_view.dart, lib/providers/game_controller.dart, lib/screens/game_screen.dart, test/providers/clock_controller_test.dart
+- Implemented: TimeControl presets (Unlimited, Blitz 3+2, Blitz 5+0, Rapid 10+0, Rapid 15+10), ClockController with drift-free DateTime delta tracking and FakeClockTicker for tests, per-move increment addition (FR3), flag detection (loss on time 0-1 / 1-0) when time reaches 0, clock pausing when game ends or is paused, symmetrical ClockView UI displaying remaining time, active state glow, and low-time warning.
+- Verified: 7 unit tests covering increment addition, flag detection, pause/resume, unlimited mode, and time formatters.
+- Open issues: none
+- Manual test steps: Select Time Control in settings (e.g. 3+2 Blitz), make moves; observe clock count down for the side to move, increment +2s added after each move, clock pauses on checkmate/resign.
 <!-- STATE:END module:clock -->
 
 <!-- STATE:BEGIN module:storage -->
@@ -639,7 +639,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 8684808 | engine | T-005: Engine integration with fallback (Minimax, 3 levels, off-thread compute, UI controls) | status-board, module:engine, decision-log, open-issues, change-log, credits |
+| 2026-10-29 | 9a32711 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |
+| 2026-10-29 | e6d4d3a | engine | T-005: Engine integration with fallback (Minimax, 3 levels, off-thread compute, UI controls) | status-board, module:engine, decision-log, open-issues, change-log, credits |
 | 2026-10-29 | 4a41fcc | api | T-004: Lichess daily puzzle API spike, parser and fixture | status-board, module:api, decision-log, change-log, credits |
 | 2026-10-29 | 9bfd520 | board | T-003: Full chess rules and 2-player board UI | status-board, module:board, decision-log, change-log, credits |
 | 2026-10-29 | 84dce56 | chore | T-001: Bootstrap Flutter repository and project docs | snapshot, status-board, change-log |

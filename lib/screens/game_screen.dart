@@ -5,8 +5,10 @@ import '../core/strings.dart';
 import '../domain/game_logic.dart';
 import '../providers/game_controller.dart';
 import '../widgets/board_view.dart';
+import '../widgets/clock_view.dart';
 
-/// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels).
+/// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels)
+/// with digital chess clocks, increment, and flag detection (FR3).
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
@@ -17,6 +19,25 @@ class GameScreen extends StatelessWidget {
         final modeTitle = controller.gameMode == GameMode.humanVsHuman
             ? AppStrings.humanVsHuman
             : '${AppStrings.playVsBot} (${_botLevelLabel(controller.botLevel)})';
+
+        final isFlipped =
+            controller.gameMode == GameMode.vsBot &&
+            controller.playerColor == PlayerColor.black;
+
+        final topColor = isFlipped ? PlayerColor.white : PlayerColor.black;
+        final bottomColor = isFlipped ? PlayerColor.black : PlayerColor.white;
+
+        final topName = controller.gameMode == GameMode.vsBot
+            ? (isFlipped
+                  ? 'คุณ (หมากขาว)'
+                  : 'บอท (${_botLevelLabel(controller.botLevel)})')
+            : (isFlipped ? AppStrings.white : AppStrings.black);
+
+        final bottomName = controller.gameMode == GameMode.vsBot
+            ? (isFlipped
+                  ? 'บอท (${_botLevelLabel(controller.botLevel)})'
+                  : 'คุณ (หมากขาว)')
+            : (isFlipped ? AppStrings.black : AppStrings.white);
 
         return Scaffold(
           backgroundColor: const Color(0xFF262421),
@@ -30,8 +51,8 @@ class GameScreen extends StatelessWidget {
             elevation: 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.smart_toy_outlined),
-                tooltip: AppStrings.gameMode,
+                icon: const Icon(Icons.timer_outlined),
+                tooltip: AppStrings.timeControl,
                 onPressed: () => _showGameModeDialog(context, controller),
               ),
               IconButton(
@@ -47,19 +68,61 @@ class GameScreen extends StatelessWidget {
                 // Top status bar
                 _buildStatusBar(context, controller),
 
+                // Top player clock bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        topName,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      ClockView(color: topColor, playerName: ''),
+                    ],
+                  ),
+                ),
+
                 // Chess board in center (responsive square, fits available height and width)
                 Expanded(
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       child: BoardView(
-                        isFlipped:
-                            controller.gameMode == GameMode.vsBot &&
-                            controller.playerColor == PlayerColor.black,
+                        isFlipped: isFlipped,
                         onPromotionRequested: () =>
                             _showPromotionDialog(context, controller.turn),
                       ),
                     ),
+                  ),
+                ),
+
+                // Bottom player clock bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        bottomName,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      ClockView(color: bottomColor, playerName: ''),
+                    ],
                   ),
                 ),
 
@@ -89,58 +152,64 @@ class GameScreen extends StatelessWidget {
 
   Widget _buildStatusBar(BuildContext context, GameController controller) {
     final isWhiteTurn = controller.turn == PlayerColor.white;
+    final isAlert = controller.isInCheck || controller.isTimedOut;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      margin: const EdgeInsets.all(12.0),
+      margin: const EdgeInsets.fromLTRB(12.0, 10.0, 12.0, 4.0),
       decoration: BoxDecoration(
         color: const Color(0xFF312E2B),
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
-          color: controller.isInCheck ? Colors.redAccent : Colors.transparent,
+          color: isAlert ? Colors.redAccent : Colors.transparent,
           width: 1.5,
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              if (controller.isBotThinking) ...[
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+          Expanded(
+            child: Row(
+              children: [
+                if (controller.isBotThinking) ...[
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ] else ...[
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: isWhiteTurn ? Colors.white : Colors.black,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey, width: 1),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    controller.statusMessage,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: controller.isBotThinking
+                          ? Colors.amber
+                          : isAlert
+                          ? Colors.redAccent
+                          : Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 10),
-              ] else ...[
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: isWhiteTurn ? Colors.white : Colors.black,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey, width: 1),
-                  ),
-                ),
-                const SizedBox(width: 10),
               ],
-              Text(
-                controller.statusMessage,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: controller.isBotThinking
-                      ? Colors.amber
-                      : controller.isInCheck
-                      ? Colors.redAccent
-                      : Colors.white,
-                ),
-              ),
-            ],
+            ),
           ),
           if (controller.isGameOver)
             Container(
@@ -150,7 +219,7 @@ class GameScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                controller.game.result ?? '',
+                controller.result ?? '',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -166,8 +235,8 @@ class GameScreen extends StatelessWidget {
     final history = controller.history;
 
     return Container(
-      height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      height: 44,
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
@@ -193,7 +262,7 @@ class GameScreen extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6.0,
-                    vertical: 12.0,
+                    vertical: 10.0,
                   ),
                   child: Row(
                     children: [
@@ -238,7 +307,7 @@ class GameScreen extends StatelessWidget {
         !controller.isBotThinking;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Row(
         children: [
           Expanded(
@@ -280,6 +349,8 @@ class GameScreen extends StatelessWidget {
     GameMode selectedMode = controller.gameMode;
     BotLevel selectedLevel = controller.botLevel;
     PlayerColor selectedColor = controller.playerColor;
+    TimeControl selectedTime =
+        controller.clock?.timeControl ?? TimeControl.rapid10p0;
 
     await showDialog(
       context: context,
@@ -288,10 +359,11 @@ class GameScreen extends StatelessWidget {
           return AlertDialog(
             backgroundColor: const Color(0xFF312E2B),
             title: const Text(
-              AppStrings.gameMode,
+              'ตั้งค่าเกมและเวลา (Game Settings)',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
             content: SingleChildScrollView(
@@ -397,6 +469,58 @@ class GameScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                  const Divider(color: Colors.white24, height: 24),
+                  const Text(
+                    AppStrings.timeControl,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<TimeControl>(
+                    initialValue: selectedTime,
+                    dropdownColor: const Color(0xFF312E2B),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFF262421),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Colors.white24),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 10.0,
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: TimeControl.unlimited,
+                        child: Text(AppStrings.unlimited),
+                      ),
+                      DropdownMenuItem(
+                        value: TimeControl.blitz3p2,
+                        child: Text(AppStrings.blitz3p2),
+                      ),
+                      DropdownMenuItem(
+                        value: TimeControl.blitz5p0,
+                        child: Text(AppStrings.blitz5p0),
+                      ),
+                      DropdownMenuItem(
+                        value: TimeControl.rapid10p0,
+                        child: Text(AppStrings.rapid10p0),
+                      ),
+                      DropdownMenuItem(
+                        value: TimeControl.rapid15p10,
+                        child: Text(AppStrings.rapid15p10),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() => selectedTime = val);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -422,6 +546,7 @@ class GameScreen extends StatelessWidget {
                     selectedMode,
                     playerColor: selectedColor,
                     botLevel: selectedLevel,
+                    timeControl: selectedTime,
                   );
                 },
               ),
@@ -442,7 +567,7 @@ class GameScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          'กระดานปัจจุบันจะถูกรีเซ็ต',
+          'กระดานและนาฬิกาปัจจุบันจะถูกรีเซ็ต',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [

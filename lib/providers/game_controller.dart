@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import '../core/strings.dart';
 import '../domain/game_logic.dart';
 import '../services/engine_service.dart';
+import 'clock_controller.dart';
 
 export '../domain/simple_bot.dart' show BotLevel;
+export 'clock_controller.dart' show TimeControl;
 
 enum GameMode { humanVsHuman, vsBot }
 
@@ -20,10 +22,12 @@ class MoveHistoryItem {
 class GameController extends ChangeNotifier {
   final GameLogic _game;
   final EngineService _engineService;
+  ClockController? _clockController;
 
   GameMode _gameMode;
   PlayerColor _playerColor;
   BotLevel _botLevel;
+  PlayerColor? _timedOutPlayer;
 
   String? _selectedSquare;
   List<String> _legalDestinations = [];
@@ -35,6 +39,7 @@ class GameController extends ChangeNotifier {
   GameController({
     GameLogic? game,
     EngineService? engineService,
+    ClockController? clockController,
     this._gameMode = GameMode.humanVsHuman,
     this._playerColor = PlayerColor.white,
     BotLevel botLevel = BotLevel.medium,
@@ -42,18 +47,33 @@ class GameController extends ChangeNotifier {
        _engineService =
            engineService ?? SimpleBotEngineService(level: botLevel),
        _botLevel = botLevel {
+    if (clockController != null) {
+      attachClock(clockController);
+    }
     if (_gameMode == GameMode.vsBot && _game.turn != _playerColor) {
       _triggerBotMove();
     }
   }
 
+  void attachClock(ClockController clock) {
+    _clockController = clock;
+    clock.onTimeout = (timedOutColor) {
+      _timedOutPlayer = timedOutColor;
+      _clockController?.pause();
+      notifyListeners();
+    };
+  }
+
   GameLogic get game => _game;
+  ClockController? get clock => _clockController;
   GameMode get gameMode => _gameMode;
   PlayerColor get playerColor => _playerColor;
   BotLevel get botLevel => _botLevel;
   PlayerColor get turn => _game.turn;
-  bool get isGameOver => _game.isGameOver;
-  bool get isInCheck => _game.isInCheck;
+  bool get isTimedOut => _timedOutPlayer != null;
+  PlayerColor? get timedOutPlayer => _timedOutPlayer;
+  bool get isGameOver => _game.isGameOver || isTimedOut;
+  bool get isInCheck => !isTimedOut && _game.isInCheck;
   bool get isBotThinking => _isBotThinking;
   bool get isBotTurn =>
       _gameMode == GameMode.vsBot && turn != _playerColor && !isGameOver;
@@ -63,6 +83,13 @@ class GameController extends ChangeNotifier {
   bool get isAwaitingPromotion => _isAwaitingPromotion;
   List<String> get history => _game.history;
   String get fen => _game.fen;
+
+  String? get result {
+    if (isTimedOut) {
+      return _timedOutPlayer == PlayerColor.white ? '0-1' : '1-0';
+    }
+    return _game.result;
+  }
 
   /// Returns the square ('e1', 'e8', etc.) of the king currently in check, or null if not in check.
   String? get kingInCheckSquare {
@@ -84,6 +111,11 @@ class GameController extends ChangeNotifier {
 
   /// User-friendly status message describing the current game state.
   String get statusMessage {
+    if (isTimedOut) {
+      return _timedOutPlayer == PlayerColor.white
+          ? AppStrings.whiteTimedOut
+          : AppStrings.blackTimedOut;
+    }
     if (_isBotThinking) {
       return AppStrings.botThinking;
     }
@@ -121,10 +153,14 @@ class GameController extends ChangeNotifier {
     GameMode mode, {
     PlayerColor? playerColor,
     BotLevel? botLevel,
+    TimeControl? timeControl,
   }) {
     _gameMode = mode;
     if (playerColor != null) _playerColor = playerColor;
     if (botLevel != null) setBotLevel(botLevel);
+    if (timeControl != null) {
+      _clockController?.reset(timeControl: timeControl);
+    }
     reset();
   }
 
@@ -220,6 +256,19 @@ class GameController extends ChangeNotifier {
     if (result.success) {
       _lastMove = MoveHistoryItem(from: from, to: to, san: result.san);
       _clearSelection();
+
+      // Manage Chess Clock (FR3)
+      if (isGameOver) {
+        _clockController?.pause();
+      } else {
+        if (_game.history.length == 1) {
+          // First move starts the clock for Black
+          _clockController?.start(turn);
+        } else {
+          _clockController?.switchTurn(turn);
+        }
+      }
+
       notifyListeners();
 
       // Trigger bot response if in vsBot mode and now it's bot's turn
@@ -278,6 +327,7 @@ class GameController extends ChangeNotifier {
           _game.undo();
           _clearSelection();
           _lastMove = null;
+          _clockController?.switchTurn(turn);
           notifyListeners();
         }
       } else {
@@ -285,6 +335,7 @@ class GameController extends ChangeNotifier {
         if (_game.undo()) {
           _clearSelection();
           _lastMove = null;
+          _clockController?.switchTurn(turn);
           notifyListeners();
         }
       }
@@ -292,6 +343,7 @@ class GameController extends ChangeNotifier {
       if (_game.undo()) {
         _clearSelection();
         _lastMove = null;
+        _clockController?.switchTurn(turn);
         notifyListeners();
       }
     }
@@ -304,10 +356,13 @@ class GameController extends ChangeNotifier {
     _lastMove = null;
     _isAwaitingPromotion = false;
     _isBotThinking = false;
+    _timedOutPlayer = null;
+    _clockController?.reset();
     notifyListeners();
 
     // If playing as Black vs Bot, White (Bot) makes the opening move
     if (_gameMode == GameMode.vsBot && _playerColor == PlayerColor.black) {
+      _clockController?.start(PlayerColor.white);
       _triggerBotMove();
     }
   }
