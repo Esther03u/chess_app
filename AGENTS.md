@@ -537,7 +537,7 @@ Rules for this section:
 | Engine / Bot | Must | T-005 | done | 2026-10-29 | Pure Dart Minimax engine with 3 levels, off-thread compute, 5/5 wins Hard vs Easy |
 | Clock | Must | T-006 | done | 2026-10-29 | Chess clock with increment, flag detection, FakeClockTicker, and UI |
 | Storage | Must | T-007 | done | 2026-10-29 | SQLite persistence, PGN round-trip, History & Replay screens |
-| Puzzle screen | Must | T-008 | todo | — | |
+| Puzzle screen | Must | T-008 | done | 2026-10-29 | FR5 satisfied: Daily puzzle UI, move validation, opponent reply, offline/retry handling |
 | Tests & quality | Must | T-009 | todo | — | |
 | Analysis | Should | T-010 | todo | — | cut if Must not done by 2026-11-04 PM |
 | Release verification | Must | T-011 | todo | — | |
@@ -586,12 +586,13 @@ Rules for this section:
 
 <!-- STATE:BEGIN module:api -->
 - Last updated: 2026-10-29
-- Files: lib/models/puzzle.dart, lib/services/lichess_api.dart, test/fixtures/puzzle_daily.json, test/services/lichess_api_test.dart
+- Files: lib/models/puzzle.dart, lib/services/lichess_api.dart, lib/screens/puzzle_screen.dart, test/fixtures/puzzle_daily.json, test/services/lichess_api_test.dart, test/screens/puzzle_screen_test.dart
 - Endpoint in use: `GET https://lichess.org/api/puzzle/daily` (verified V3 from live endpoint)
 - Fixture: `test/fixtures/puzzle_daily.json` (captured and verified)
+- Implemented: Daily puzzle screen (PuzzleScreen) with rating, themes, ID, interactive square board oriented to player's turn, move verification against UCI solution array, automatic opponent response delay, victory state detection, wrong move feedback, reveal solution, and offline error state with retry button (FR5).
 - Decisions: verified V3 (daily puzzle response contains puzzle.fen, puzzle.solution UCI array, puzzle.initialPly, and game metadata); Opening Explorer excluded from scope (token requirement, V5).
 - Error handling: implemented §3.7.1 (timeouts 8s, retry with exponential backoff on 5xx/timeout, 429 wait & retry, no-connectivity cached fallback, null-safe parsing).
-- Manual test steps: run unit tests on fixture, simulate network disconnection.
+- Manual test steps: open Daily Puzzle from AppBar -> make moves -> observe correct move / opponent reply / victory banner; test offline mode with retry button.
 <!-- STATE:END module:api -->
 
 <!-- STATE:BEGIN module:analysis -->
@@ -640,6 +641,7 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
+| 2026-10-29 | 28ee922 | puzzle | T-008: Daily puzzle screen, solution verification, opponent auto-reply, offline fallback | status-board, module:api, change-log |
 | 2026-10-29 | 72e99b7 | storage | T-007: SQLite storage, PGN round-trip, History and GameReplay screens | status-board, module:storage, change-log, credits |
 | 2026-10-29 | e04f7d2 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |
 | 2026-10-29 | e6d4d3a | engine | T-005: Engine integration with fallback (Minimax, 3 levels, off-thread compute, UI controls) | status-board, module:engine, decision-log, open-issues, change-log, credits |

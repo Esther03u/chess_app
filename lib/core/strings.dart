@@ -67,4 +67,19 @@ class AppStrings {
   static const String delete = 'ลบ';
   static const String confirmDelete = 'ต้องการลบประวัติตานี้หรือไม่?';
   static const String movesCount = 'จำนวนตาเดิน';
+
+  // Puzzle (FR5)
+  static const String dailyPuzzle = 'โจทย์ประจำวัน (Daily Puzzle)';
+  static const String puzzleRating = 'คะแนนโจทย์';
+  static const String yourTurnToMove = 'ตาของคุณ - หาตาเดินที่ดีที่สุด!';
+  static const String correctMove = 'ถูกต้อง! เดินต่อ...';
+  static const String puzzleSolved = 'สำเร็จ! คุณแก้โจทย์สำเร็จแล้ว 🎉';
+  static const String wrongMove = 'ยังไม่ถูกต้อง ลองใหม่อีกครั้ง';
+  static const String showSolution = 'ดูเฉลย';
+  static const String retryPuzzle = 'เริ่มใหม่';
+  static const String loadingPuzzle = 'กำลังโหลดโจทย์ประจำวัน...';
+  static const String puzzleLoadFailed =
+      'ไม่สามารถโหลดโจทย์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+  static const String retry = 'ลองใหม่';
+  static const String solutionLabel = 'เฉลย: ';
 }

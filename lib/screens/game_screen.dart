@@ -7,6 +7,7 @@ import '../providers/game_controller.dart';
 import '../widgets/board_view.dart';
 import '../widgets/clock_view.dart';
 import 'history_screen.dart';
+import 'puzzle_screen.dart';
 
 /// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels)
 /// with digital chess clocks, increment, and flag detection (FR3).
@@ -51,6 +52,15 @@ class GameScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             elevation: 0,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.psychology_outlined),
+                tooltip: AppStrings.dailyPuzzle,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PuzzleScreen()),
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.history),
                 tooltip: AppStrings.gameHistory,

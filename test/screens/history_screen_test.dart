@@ -29,9 +29,9 @@ class FakeDbService implements DbService {
   @override
   Future<GameRecord?> getGame(int id) async {
     return _records.cast<GameRecord?>().firstWhere(
-          (g) => g?.id == id,
-          orElse: () => null,
-        );
+      (g) => g?.id == id,
+      orElse: () => null,
+    );
   }
 
   @override
@@ -66,9 +66,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: HistoryScreen(dbService: fakeDb),
-        ),
+        MaterialApp(home: HistoryScreen(dbService: fakeDb)),
       );
 
       await tester.pump();
@@ -82,19 +80,19 @@ void main() {
     ) async {
       // Scholar's mate PGN
       const pgn = '1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0';
-      await fakeDb.saveGame(const GameRecord(
-        pgn: pgn,
-        white: 'Somchai',
-        black: 'Bot (Hard)',
-        result: '1-0',
-        timeControl: '3 + 2',
-        playedAt: 1730200000000,
-      ));
+      await fakeDb.saveGame(
+        const GameRecord(
+          pgn: pgn,
+          white: 'Somchai',
+          black: 'Bot (Hard)',
+          result: '1-0',
+          timeControl: '3 + 2',
+          playedAt: 1730200000000,
+        ),
+      );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: HistoryScreen(dbService: fakeDb),
-        ),
+        MaterialApp(home: HistoryScreen(dbService: fakeDb)),
       );
 
       await tester.pump();
@@ -108,7 +106,9 @@ void main() {
       // Tap card to open Replay screen
       await tester.tap(find.text('Somchai vs Bot (Hard)'));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300)); // finish route transition
+      await tester.pump(
+        const Duration(milliseconds: 300),
+      ); // finish route transition
 
       // Verify GameReplayScreen is open with replay controls
       expect(find.byType(GameReplayScreen), findsOneWidget);

@@ -186,6 +186,15 @@ class GameLogic {
     return _chess.move(san);
   }
 
+  /// Attempts to make a move from UCI format, e.g. 'e2e4', 'c7c8q'.
+  MoveResult tryMoveUci(String uci) {
+    if (uci.length < 4) return const MoveResult.failure();
+    final from = uci.substring(0, 2);
+    final to = uci.substring(2, 4);
+    final promotion = uci.length > 4 ? uci.substring(4, 5) : null;
+    return tryMove(from, to, promotion: promotion);
+  }
+
   /// Undoes the last move. Returns true if a move was undone, false otherwise.
   bool undo() {
     final move = _chess.undo_move();

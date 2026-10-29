@@ -173,7 +173,7 @@ class _SquareWidget extends StatelessWidget {
               ),
 
             // Chess piece
-            if (piece != null) Center(child: _ChessPieceWidget(piece: piece!)),
+            if (piece != null) Center(child: ChessPieceWidget(piece: piece!)),
 
             // Legal move indicator
             if (isLegalDestination)
@@ -204,10 +204,10 @@ class _SquareWidget extends StatelessWidget {
   }
 }
 
-class _ChessPieceWidget extends StatelessWidget {
+class ChessPieceWidget extends StatelessWidget {
   final PieceInfo piece;
 
-  const _ChessPieceWidget({required this.piece});
+  const ChessPieceWidget({super.key, required this.piece});
 
   @override
   Widget build(BuildContext context) {
