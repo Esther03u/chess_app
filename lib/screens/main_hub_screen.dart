@@ -143,29 +143,25 @@ class MainHubScreenState extends State<MainHubScreen> {
 
   Widget _buildBrandHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primaryGreen, AppTheme.primaryGreenDark],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
+              gradient: AppTheme.greenGradient,
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryGreen.withValues(alpha: 0.35),
-                  blurRadius: 10,
+                  color: AppTheme.primaryGreen.withValues(alpha: 0.4),
+                  blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: const Center(
-              child: Icon(Icons.shield, color: Colors.white, size: 28),
+              child: Icon(Icons.shield_rounded, color: Colors.white, size: 30),
             ),
           ),
           const SizedBox(width: 14),
@@ -176,34 +172,43 @@ class MainHubScreenState extends State<MainHubScreen> {
                 const Text(
                   AppStrings.appTitle,
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
                     color: AppTheme.textPrimary,
                     letterSpacing: 0.5,
                   ),
                 ),
                 Text(
-                  AppStrings.appSlogan,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
+                  'MASTER THE BOARD • PLAY & LEARN',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: AppTheme.primaryGreenLight.withValues(alpha: 0.85),
                   ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.palette_outlined,
-              color: AppTheme.accentAmber,
-              size: 26,
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.border),
             ),
-            tooltip: 'ตกแต่งบอร์ดและตัวหมาก',
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
-            },
+            child: IconButton(
+              icon: const Icon(
+                Icons.palette_outlined,
+                color: AppTheme.accentAmber,
+                size: 24,
+              ),
+              tooltip: 'ตกแต่งบอร์ดและตัวหมาก',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -213,39 +218,61 @@ class MainHubScreenState extends State<MainHubScreen> {
   Widget _buildActiveGameBanner(GameController controller) {
     return InkWell(
       onTap: () => switchTab(1),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.accentAmber.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.accentAmber.withValues(alpha: 0.16),
+              AppTheme.surfaceCard,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: AppTheme.accentAmber.withValues(alpha: 0.5),
+            color: AppTheme.accentAmber.withValues(alpha: 0.6),
             width: 1.5,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accentAmber.withValues(alpha: 0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.play_circle_filled,
-              color: AppTheme.accentAmber,
-              size: 28,
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.accentAmber.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                color: AppTheme.accentAmber,
+                size: 28,
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'มีเกมที่กำลังเล่นอยู่',
+                    'เกมกำลังดำเนินอยู่ (Active Match)',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.accentAmber,
-                      fontSize: 14,
+                      fontSize: 15,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'จำนวนตาเดิน: ${controller.history.length} ตา • แตะเพื่อเล่นต่อ',
+                    'เล่นไปแล้ว ${controller.history.length} ตา • แตะเพื่อกลับเข้าสู่กระดานทันที',
                     style: const TextStyle(
                       color: AppTheme.textSecondary,
                       fontSize: 12,
@@ -255,9 +282,9 @@ class MainHubScreenState extends State<MainHubScreen> {
               ),
             ),
             const Icon(
-              Icons.arrow_forward_ios,
+              Icons.chevron_right_rounded,
               color: AppTheme.accentAmber,
-              size: 16,
+              size: 24,
             ),
           ],
         ),
@@ -266,29 +293,40 @@ class MainHubScreenState extends State<MainHubScreen> {
   }
 
   Widget _buildVsBotCard(GameController controller) {
-    return Card(
-      elevation: 3,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Card Title
+            // Card Title Header
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryGreen.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: AppTheme.greenGradient,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.smart_toy_outlined,
-                    color: AppTheme.primaryGreen,
+                    Icons.smart_toy_rounded,
+                    color: Colors.white,
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,13 +334,14 @@ class MainHubScreenState extends State<MainHubScreen> {
                       Text(
                         AppStrings.quickVsBot,
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
                         ),
                       ),
+                      SizedBox(height: 2),
                       Text(
-                        'ท้าประลองกับระบบ AI 3 ระดับ',
+                        'เลือกระดับความท้าทายจาก Minimax Engine อัจฉริยะ',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textSecondary,
@@ -313,43 +352,64 @@ class MainHubScreenState extends State<MainHubScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // Difficulty Selector Pills
+            // Bot Character Persona Selector (Cards with avatars and ratings)
             const Text(
-              AppStrings.botDifficulty,
+              'เลือกระดับคู่ต่อสู้ AI',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 color: AppTheme.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               children: [
-                _buildDifficultyPill(1, AppStrings.easyLevel, Colors.green),
-                const SizedBox(width: 8),
-                _buildDifficultyPill(2, AppStrings.mediumLevel, Colors.amber),
-                const SizedBox(width: 8),
-                _buildDifficultyPill(3, AppStrings.hardLevel, Colors.redAccent),
+                _buildBotPersonaCard(
+                  level: 1,
+                  name: 'Elani',
+                  rating: '400',
+                  difficulty: 'ง่าย',
+                  accentColor: const Color(0xFF68D391),
+                  icon: Icons.face_retouching_natural,
+                ),
+                const SizedBox(width: 10),
+                _buildBotPersonaCard(
+                  level: 2,
+                  name: 'Marcus',
+                  rating: '1200',
+                  difficulty: 'ปานกลาง',
+                  accentColor: AppTheme.accentAmber,
+                  icon: Icons.person_pin,
+                ),
+                const SizedBox(width: 10),
+                _buildBotPersonaCard(
+                  level: 3,
+                  name: 'Magnus Bot',
+                  rating: '1800',
+                  difficulty: 'ยาก',
+                  accentColor: const Color(0xFFFC8181),
+                  icon: Icons.military_tech_rounded,
+                ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 18),
 
             // Side Selector (White / Random / Black)
             const Text(
-              AppStrings.chooseSide,
+              'เลือกสีหมากของคุณ',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 color: AppTheme.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               children: [
                 _buildSideChoice(
-                  label: AppStrings.white,
+                  label: 'หมากขาว',
                   icon: Icons.circle,
                   iconColor: Colors.white,
                   isSelected:
@@ -361,9 +421,9 @@ class MainHubScreenState extends State<MainHubScreen> {
                     });
                   },
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 _buildSideChoice(
-                  label: AppStrings.randomSide,
+                  label: 'สุ่มสี',
                   icon: Icons.casino_outlined,
                   iconColor: AppTheme.accentAmber,
                   isSelected: _isRandomColor,
@@ -373,9 +433,9 @@ class MainHubScreenState extends State<MainHubScreen> {
                     });
                   },
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 _buildSideChoice(
-                  label: AppStrings.black,
+                  label: 'หมากดำ',
                   icon: Icons.circle,
                   iconColor: AppTheme.blackPieceFill,
                   isSelected:
@@ -389,33 +449,45 @@ class MainHubScreenState extends State<MainHubScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 18),
 
             // Time Control selector
             const Text(
-              AppStrings.timeControl,
+              'รูปแบบเวลา (Clock Control)',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 color: AppTheme.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
                 _buildTimeChip(TimeControl.unlimited, '♾️ ไม่จำกัด'),
-                _buildTimeChip(TimeControl.blitz3p2, '⚡ 3+2'),
+                _buildTimeChip(TimeControl.blitz3p2, '⚡ 3+2 (Blitz)'),
                 _buildTimeChip(TimeControl.blitz5p0, '⏱️ 5 นาที'),
-                _buildTimeChip(TimeControl.rapid10p0, '⌛ 10 นาที'),
+                _buildTimeChip(TimeControl.rapid10p0, '⌛ 10 นาที (Rapid)'),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 22),
 
-            // Start Match Button
-            SizedBox(
+            // Start Match Button with Gradient Glow
+            Container(
               width: double.infinity,
-              height: 46,
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: AppTheme.greenGradient,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: ElevatedButton.icon(
                 onPressed: () {
                   final chosenColor = _isRandomColor
@@ -431,14 +503,18 @@ class MainHubScreenState extends State<MainHubScreen> {
                   );
                   switchTab(1);
                 },
-                icon: const Icon(Icons.play_arrow),
+                icon: const Icon(Icons.play_arrow_rounded, size: 24),
                 label: const Text(
-                  AppStrings.startGame,
-                  style: TextStyle(fontSize: 16),
+                  'เริ่มแข่งขัน (Start Game)',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryGreen,
+                  backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -448,7 +524,14 @@ class MainHubScreenState extends State<MainHubScreen> {
     );
   }
 
-  Widget _buildDifficultyPill(int level, String label, Color color) {
+  Widget _buildBotPersonaCard({
+    required int level,
+    required String name,
+    required String rating,
+    required String difficulty,
+    required Color accentColor,
+    required IconData icon,
+  }) {
     final isSelected = _selectedBotLevel == level;
     return Expanded(
       child: InkWell(
@@ -457,27 +540,61 @@ class MainHubScreenState extends State<MainHubScreen> {
             _selectedBotLevel = level;
           });
         },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? color.withValues(alpha: 0.22)
+                ? accentColor.withValues(alpha: 0.16)
                 : AppTheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? color : AppTheme.border,
+              color: isSelected ? accentColor : AppTheme.border,
               width: isSelected ? 2 : 1,
             ),
           ),
           child: Column(
             children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? accentColor.withValues(alpha: 0.25)
+                      : const Color(0xFF383531),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? accentColor : Colors.white70,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(height: 8),
               Text(
-                label.split(' ')[0],
+                name,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? color : AppTheme.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : AppTheme.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected ? accentColor : AppTheme.surfaceCard,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  rating,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? Colors.black : AppTheme.textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -558,60 +675,77 @@ class MainHubScreenState extends State<MainHubScreen> {
   }
 
   Widget _buildPassPlayCard(GameController controller) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          controller.startHumanVsHuman(timeControl: _selectedTimeControl);
-          switchTab(1);
-        },
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.people_alt_outlined,
-                  color: Colors.blueAccent,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.humanVsHuman,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            controller.startHumanVsHuman(timeControl: _selectedTimeControl);
+            switchTab(1);
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentBlue.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.accentBlue.withValues(alpha: 0.4),
                     ),
-                    SizedBox(height: 2),
-                    Text(
-                      'เล่น 2 คนผลัดกันเดินบนเครื่องเดียวกัน',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: const Icon(
+                    Icons.people_alt_rounded,
+                    color: AppTheme.accentBlue,
+                    size: 26,
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppTheme.textMuted,
-              ),
-            ],
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.humanVsHuman,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'เล่นกับเพื่อนแบบ 2 คนบนเครื่องเดียวกัน พร้อมระบบนาฬิกาแข่ง',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppTheme.textMuted,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -619,77 +753,101 @@ class MainHubScreenState extends State<MainHubScreen> {
   }
 
   Widget _buildDailyPuzzleCard() {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => switchTab(2),
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.surfaceCard,
-                AppTheme.primaryGreen.withValues(alpha: 0.08),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.accentAmber.withValues(alpha: 0.14),
+            AppTheme.surfaceCard,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.accentAmber.withValues(alpha: 0.5),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentAmber.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.psychology,
-                  color: AppTheme.accentAmber,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.quickDailyPuzzle,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => switchTab(2),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.amberGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.accentAmber.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'โจทย์ลับสมองดึงสดจาก Lichess API',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.psychology_rounded,
+                    color: Colors.black,
+                    size: 26,
+                  ),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () => switchTab(2),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accentAmberDark,
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.quickDailyPuzzle,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'โจทย์ลับสมองดึงสดจาก Lichess API ตรวจคำตอบอัตโนมัติ',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 8,
                   ),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.amberGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'แก้โจทย์',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
-                child: const Text(
-                  'แก้โจทย์',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -697,57 +855,74 @@ class MainHubScreenState extends State<MainHubScreen> {
   }
 
   Widget _buildHistoryCard() {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => switchTab(3),
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.purpleAccent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.insights_outlined,
-                  color: Colors.purpleAccent,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.gameHistory,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => switchTab(3),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentPurple.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.accentPurple.withValues(alpha: 0.4),
                     ),
-                    SizedBox(height: 2),
-                    Text(
-                      'ดูย้อนหลัง Replay พร้อมกราฟวิเคราะห์ Advantage',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: const Icon(
+                    Icons.insights_rounded,
+                    color: AppTheme.accentPurple,
+                    size: 26,
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppTheme.textMuted,
-              ),
-            ],
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ประวัติและวิเคราะห์เกม (History & Replay)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'บันทึก SQLite อัตโนมัติ Replay ตาเดิน พร้อมกราฟประเมินแต้ม',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppTheme.textMuted,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -755,59 +930,78 @@ class MainHubScreenState extends State<MainHubScreen> {
   }
 
   Widget _buildCustomizationCard(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentAmber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.palette_outlined,
-                  color: AppTheme.accentAmber,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'ตกแต่งกระดานและตัวหมาก',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.primaryGreen.withValues(alpha: 0.4),
                     ),
-                    SizedBox(height: 2),
-                    Text(
-                      'เลือกธีมสีบอร์ด (เขียว/ไม้/หินชนวน) สไตล์ตัวหมาก และแอนิเมชัน',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: const Icon(
+                    Icons.palette_rounded,
+                    color: AppTheme.primaryGreen,
+                    size: 26,
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppTheme.textMuted,
-              ),
-            ],
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ตกแต่งกระดานและตัวหมาก (Customization)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        '5 ธีมสีกระดาน (เขียว/ไม้/หินชนวน) • 4 สไตล์ตัวหมาก • แอนิเมชัน',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppTheme.textMuted,
+                ),
+              ],
+            ),
           ),
         ),
       ),

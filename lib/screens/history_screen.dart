@@ -118,113 +118,166 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final dateTimeStr = _formatDateTime(game.dateTime);
     final resultStr = game.result ?? '*';
 
-    Color resultBg;
+    Color resultBadgeColor;
+    String resultLabel;
     if (resultStr == '1-0') {
-      resultBg = Colors.white;
+      resultBadgeColor = AppTheme.primaryGreen;
+      resultLabel = 'ขาวชนะ (1-0)';
     } else if (resultStr == '0-1') {
-      resultBg = Colors.grey.shade900;
+      resultBadgeColor = const Color(0xFFFC8181);
+      resultLabel = 'ดำชนะ (0-1)';
+    } else if (resultStr == '1/2-1/2') {
+      resultBadgeColor = AppTheme.accentAmber;
+      resultLabel = 'เสมอ (½-½)';
     } else {
-      resultBg = Colors.amber.shade800;
+      resultBadgeColor = AppTheme.textMuted;
+      resultLabel = 'ไม่จบเกม (*)';
     }
 
-    return Card(
-      color: AppTheme.surfaceCard,
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 6.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        side: const BorderSide(color: AppTheme.border),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(14.0),
+        border: Border.all(color: AppTheme.border, width: 1.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.22),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8.0),
-        onTap: () => _openReplay(game),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              // Result pill
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: resultBg,
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Center(
-                  child: Text(
-                    resultStr,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: resultStr == '1-0' ? Colors.black : Colors.white,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14.0),
+          onTap: () => _openReplay(game),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Result indicator pillar
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: resultBadgeColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12.0),
+                    border: Border.all(
+                      color: resultBadgeColor.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      resultStr,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        color: resultBadgeColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 14),
+                const SizedBox(width: 14),
 
-              // Player details and date
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${game.white ?? AppStrings.white} vs ${game.black ?? AppStrings.black}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          dateTimeStr,
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
+                // Match metadata & players
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              '${game.white ?? AppStrings.white} vs ${game.black ?? AppStrings.black}',
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        if (game.timeControl != null) ...[
-                          const SizedBox(width: 8),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.surfaceVariant,
+                              color: resultBadgeColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: AppTheme.border),
                             ),
                             child: Text(
-                              game.timeControl!,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
+                              resultLabel,
+                              style: TextStyle(
+                                color: resultBadgeColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
+                          if (game.timeControl != null) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.surfaceVariant,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: AppTheme.border),
+                              ),
+                              child: Text(
+                                game.timeControl!,
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 8),
+                          Text(
+                            dateTimeStr,
+                            style: const TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
                         ],
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              // Delete button
-              IconButton(
-                icon: const Icon(
-                  Icons.delete_outline,
-                  size: 20,
-                  color: Colors.white38,
+                // Action Replay / Analysis Icon
+                IconButton(
+                  icon: const Icon(
+                    Icons.play_circle_outline_rounded,
+                    size: 24,
+                    color: AppTheme.primaryGreen,
+                  ),
+                  tooltip: 'ย้อนดูการเดิน (Replay)',
+                  onPressed: () => _openReplay(game),
                 ),
-                tooltip: AppStrings.delete,
-                onPressed: () => _confirmDelete(game.id),
-              ),
-            ],
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                    color: AppTheme.textMuted,
+                  ),
+                  tooltip: AppStrings.delete,
+                  onPressed: () => _confirmDelete(game.id),
+                ),
+              ],
+            ),
           ),
         ),
       ),

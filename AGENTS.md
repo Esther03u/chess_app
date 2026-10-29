@@ -663,7 +663,7 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | (pending) | ui | feat(layout): responsive chess.com layout with player profile framing, captured pieces, and bot personas | module:ui, module:tests, credits, change-log |
+| 2026-10-29 | (pending) | ui | feat(ui): comprehensive impeccable redesign across all screens, bot personas, and AppStrings sync (75/75 tests green) | status-board, module:ui, change-log |
 | 2026-10-29 | 950e73d | ui | Customization system: 5 board themes, 4 piece styles, settings persistence in SQLite | module:ui, change-log |
 | 2026-10-29 | 7368b3b | ui | Impeccable technical audit: 100% theme token consolidation, TalkBack/VoiceOver semantics, and vector pieces in replay screen | module:ui, change-log |
 | 2026-10-29 | 6c29a38 | ui | Impeccable redesign: MainHubScreen with bottom navigation, tournament dark theme, and CustomPainter vector chess pieces | module:board, change-log |

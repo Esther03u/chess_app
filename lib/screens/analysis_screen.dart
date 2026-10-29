@@ -215,117 +215,196 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
   Widget _buildAccuracyHeader(GameRecord record, GameAnalysis analysis) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-      margin: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 4.0),
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 6.0),
       decoration: BoxDecoration(
         color: AppTheme.surfaceCard,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: AppTheme.border),
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: AppTheme.border, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          // White Player Accuracy
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        record.white ?? AppStrings.white,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${analysis.whiteAccuracy.toStringAsFixed(1)}%',
-                  style: const TextStyle(
-                    color: AppTheme.primaryGreen,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          // Match Result & Title
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.military_tech_rounded,
+                    color: AppTheme.accentAmber,
+                    size: 20,
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // Result Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.amber.shade800,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              record.result ?? '*',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 13,
+                  const SizedBox(width: 6),
+                  const Text(
+                    'การวิเคราะห์ความแม่นยำ (Game Accuracy)',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-
-          // Black Player Accuracy
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        record.black ?? AppStrings.black,
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${analysis.blackAccuracy.toStringAsFixed(1)}%',
+                decoration: BoxDecoration(
+                  gradient: AppTheme.amberGradient,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  record.result ?? '*',
                   style: const TextStyle(
-                    color: AppTheme.primaryGreen,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    fontSize: 12,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Two-Player Comparison Pill
+          Row(
+            children: [
+              // White Player Card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              record.white ?? AppStrings.white,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${analysis.whiteAccuracy.toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                          color: AppTheme.primaryGreenLight,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: (analysis.whiteAccuracy / 100).clamp(0.0, 1.0),
+                          backgroundColor: Colors.white12,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppTheme.primaryGreen,
+                          ),
+                          minHeight: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Black Player Card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade600),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              record.black ?? AppStrings.black,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${analysis.blackAccuracy.toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                          color: AppTheme.primaryGreenLight,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: (analysis.blackAccuracy / 100).clamp(0.0, 1.0),
+                          backgroundColor: Colors.white12,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppTheme.primaryGreen,
+                          ),
+                          minHeight: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

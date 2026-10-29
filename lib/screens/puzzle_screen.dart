@@ -469,12 +469,19 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
 
   Widget _buildMetadataCard(DailyPuzzle puzzle) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-      margin: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      margin: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 8.0),
       decoration: BoxDecoration(
         color: AppTheme.surfaceCard,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: AppTheme.border),
+        borderRadius: BorderRadius.circular(14.0),
+        border: Border.all(color: AppTheme.border, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -485,65 +492,98 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: 10,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryGreen,
-                      borderRadius: BorderRadius.circular(4),
+                      gradient: AppTheme.greenGradient,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryGreen.withValues(alpha: 0.35),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
-                          Icons.military_tech,
-                          size: 14,
+                          Icons.military_tech_rounded,
+                          size: 16,
                           color: Colors.white,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 5),
                         Text(
                           '${AppStrings.puzzleRating}: ${puzzle.rating}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.3,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(
                     '#${puzzle.id}',
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: _playerColor == PlayerColor.white
-                      ? Colors.white12
-                      : Colors.black38,
-                  borderRadius: BorderRadius.circular(4),
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.border),
                 ),
-                child: Text(
-                  _playerColor == PlayerColor.white
-                      ? AppStrings.white
-                      : AppStrings.black,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _playerColor == PlayerColor.white
+                            ? Colors.white
+                            : Colors.black,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey, width: 0.8),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _playerColor == PlayerColor.white
+                          ? 'คุณเล่นหมากขาว'
+                          : 'คุณเล่นหมากดำ',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           if (puzzle.themes.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
             SizedBox(
-              height: 22,
+              height: 26,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: puzzle.themes.length,
@@ -551,18 +591,20 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                 itemBuilder: (context, index) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
+                      horizontal: 8,
+                      vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(3),
+                      color: AppTheme.surfaceVariant,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppTheme.border),
                     ),
                     child: Text(
-                      puzzle.themes[index],
+                      '# ${puzzle.themes[index]}',
                       style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10,
+                        color: AppTheme.textSecondary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   );
@@ -583,34 +625,41 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
 
     if (_isSolved) {
       bgColor = AppTheme.primaryGreenDark;
-      icon = Icons.check_circle_outline;
+      icon = Icons.emoji_events_rounded;
       message = AppStrings.puzzleSolved;
     } else if (_isWrongMove) {
       bgColor = AppTheme.errorRed;
-      icon = Icons.cancel_outlined;
+      icon = Icons.error_outline_rounded;
       message = AppStrings.wrongMove;
     } else if (_isOpponentMoving) {
       bgColor = AppTheme.accentAmberDark;
-      icon = Icons.hourglass_top_outlined;
-      message = 'ฝ่ายตรงข้ามกำลังเดิน...';
+      icon = Icons.smart_toy_rounded;
+      message = AppStrings.botThinking;
     } else {
       bgColor = AppTheme.surfaceCard;
-      icon = Icons.psychology_outlined;
+      icon = Icons.psychology_rounded;
       message = AppStrings.yourTurnToMove;
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withValues(alpha: 0.35),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: textColor, size: 18),
+          Icon(icon, color: textColor, size: 20),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
@@ -618,7 +667,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
               style: TextStyle(
                 color: textColor,
                 fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
               ),
               overflow: TextOverflow.ellipsis,
             ),

@@ -13,9 +13,31 @@ class AppTheme {
   // Accents
   static const Color primaryGreen = Color(0xFF81B64C);
   static const Color primaryGreenDark = Color(0xFF629924);
+  static const Color primaryGreenLight = Color(0xFFA3D169);
   static const Color accentAmber = Color(0xFFF0C15A);
   static const Color accentAmberDark = Color(0xFFE69D24);
+  static const Color accentBlue = Color(0xFF4A90E2);
+  static const Color accentPurple = Color(0xFF9B51E0);
   static const Color errorRed = Color(0xFFE05252);
+
+  // Gradients for Hero Cards & Buttons
+  static const LinearGradient greenGradient = LinearGradient(
+    colors: [primaryGreen, primaryGreenDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient amberGradient = LinearGradient(
+    colors: [accentAmber, accentAmberDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient darkCardGradient = LinearGradient(
+    colors: [Color(0xFF2C2A26), Color(0xFF21201D)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   // Typography Colors
   static const Color textPrimary = Color(0xFFEDECE6);
