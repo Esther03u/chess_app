@@ -532,7 +532,7 @@ Rules for this section:
 |---|---|---|---|---|---|
 | Bootstrap | Must | T-001 | done | 2026-10-29 | Initial Flutter project and docs |
 | Observation table | Must | T-002 | todo | — | user-owned |
-| Board & Rules | Must | T-003 | todo | — | |
+| Board & Rules | Must | T-003 | done | 2026-10-29 | FR1 unit tests passed; 2-player board UI complete |
 | Puzzle API spike | Must | T-004 | todo | — | verify V3 |
 | Engine / Bot | Must | T-005 | todo | — | fallback trigger 2026-11-02 EOD |
 | Clock | Must | T-006 | todo | — | |
@@ -546,13 +546,13 @@ Rules for this section:
 <!-- STATE:END status-board -->
 
 <!-- STATE:BEGIN module:board -->
-- Last updated: —
-- Files: —
-- Implemented: —
-- Public interface: see §3.4 (`GameLogic`)
-- Decisions: use `chess` package (verify V2)
-- Open issues: —
-- Manual test steps: —
+- Last updated: 2026-10-29
+- Files: lib/domain/game_logic.dart, lib/providers/game_controller.dart, lib/widgets/board_view.dart, lib/screens/game_screen.dart, lib/core/strings.dart, test/domain/game_logic_test.dart
+- Implemented: Full chess rules (castling through check blocked, en passant, promotion with piece selection dialog, check/checkmate, stalemate, threefold repetition, 50-move rule, insufficient material, undo, PGN export), responsive square board view with legal destination/last move/check highlights, 2-player local match screen.
+- Public interface: GameLogic (fen, turn, isInCheck, isCheckmate, isStalemate, isThreefoldRepetition, isInsufficientMaterial, isFiftyMoveRule, isDraw, isGameOver, result, legalMovesFrom, tryMove, undo, reset, loadFen, loadPgn, toPgn)
+- Decisions: verified V2 (`chess` package API 0.8.1 works and covers full rules under MIT/BSD license); responsive square layout using Expanded and AspectRatio.
+- Open issues: none
+- Manual test steps: open app, play moves on board, observe legal move indicators, test pawn promotion, test check and checkmate, press undo and restart.
 <!-- STATE:END module:board -->
 
 <!-- STATE:BEGIN module:engine -->
@@ -616,6 +616,7 @@ Rules for this section:
 <!-- STATE:BEGIN decision-log -->
 | Date | Decision | Reason | Alternatives not chosen |
 |---|---|---|---|
+| 2026-10-29 | Verified `chess` 0.8.1 (V2) | Covers full FEN/PGN, castling, en passant, promotion, and draw rules; MIT/BSD license | Custom rules engine |
 | 2026-10-29 | Keep project state, rules and tasks in this single AGENTS.md with STATE markers | Lets agents make targeted updates and onboard quickly | Multiple separate docs |
 | 2026-10-29 | Online play, Opening Explorer, themes cut from submission scope | Limited time (exam week) | Build all features |
 | 2026-10-29 | Post-game analysis is Should, not Must | Time risk | Mandatory |
@@ -635,7 +636,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 9b567bf | chore | T-001: Bootstrap Flutter repository and project docs | snapshot, status-board, change-log |
+| 2026-10-29 | 354ff59 | board | T-003: Full chess rules and 2-player board UI | status-board, module:board, decision-log, change-log, credits |
+| 2026-10-29 | 84dce56 | chore | T-001: Bootstrap Flutter repository and project docs | snapshot, status-board, change-log |
 | 2026-10-29 | (none yet) | docs | Created agent-facing spec (AGENTS.md) | all |
 <!-- STATE:END change-log -->
 
@@ -646,10 +648,10 @@ Rules for this section:
 <!-- STATE:BEGIN credits -->
 | Name | Version | Purpose | License (verified from source) | Source URL | Verified on |
 |---|---|---|---|---|---|
-| chess | — | rules, FEN/PGN | UNVERIFIED | | |
+| chess | 0.8.1 | rules, FEN/PGN | MIT / BSD-2-Clause | https://pub.dev/packages/chess | 2026-10-29 |
 | stockfish (package) | — | engine | GPL expected — UNVERIFIED | | |
 | dio | — | HTTP | UNVERIFIED | | |
-| provider | — | state | UNVERIFIED | | |
+| provider | 6.1.5+1 | state | MIT | https://pub.dev/packages/provider | 2026-10-29 |
 | sqflite | — | local DB | UNVERIFIED | | |
 
 | Asset / service | Author | License | Required attribution | Source URL |
