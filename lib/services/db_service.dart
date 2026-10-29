@@ -8,8 +8,9 @@ import '../models/game_record.dart';
 /// Database service managing SQLite storage for chess games and PGN history (§3.5).
 class DbService {
   static const String tableName = 'games';
+  static const String settingsTableName = 'settings';
   static const String dbName = 'chess_app.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
 
   Database? _db;
 
@@ -47,10 +48,23 @@ class DbService {
         analysis_json TEXT
       )
     ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $settingsTableName (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Schema migration when needed in future versions
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS $settingsTableName (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      ''');
+    }
   }
 
   /// Saves a finished game to SQLite, returns the generated ID.
@@ -106,6 +120,41 @@ class DbService {
   Future<int> clearAll() async {
     final db = await database;
     return await db.delete(tableName);
+  }
+
+  /// Gets a setting value by key from SQLite.
+  Future<String?> getSetting(String key) async {
+    final db = await database;
+    final results = await db.query(
+      settingsTableName,
+      where: 'key = ?',
+      whereArgs: [key],
+      limit: 1,
+    );
+    if (results.isNotEmpty) {
+      return results.first['value'] as String?;
+    }
+    return null;
+  }
+
+  /// Sets or updates a setting key-value pair in SQLite.
+  Future<void> setSetting(String key, String value) async {
+    final db = await database;
+    await db.insert(
+      settingsTableName,
+      {'key': key, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Removes a setting by key.
+  Future<void> removeSetting(String key) async {
+    final db = await database;
+    await db.delete(
+      settingsTableName,
+      where: 'key = ?',
+      whereArgs: [key],
+    );
   }
 
   /// Closes database connection.

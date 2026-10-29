@@ -3,13 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
 import '../domain/game_logic.dart';
+import '../models/customization_options.dart';
 import '../providers/game_controller.dart';
+import '../providers/settings_provider.dart';
 import 'chess_piece_painter.dart';
 
 export 'chess_piece_painter.dart' show ChessPieceWidget;
 
 /// Renders a square 8x8 tournament chessboard with vector pieces,
-/// highlights for legal moves, last move, selected piece, and king in check.
+/// customizable board themes, piece styles, move animations, and coordinates.
 class BoardView extends StatelessWidget {
   /// Whether the board is flipped (Black perspective at bottom).
   final bool isFlipped;
@@ -31,6 +33,18 @@ class BoardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Attempt to watch SettingsProvider if available in widget tree
+    SettingsProvider? settings;
+    try {
+      settings = context.watch<SettingsProvider>();
+    } catch (_) {}
+
+    final boardTheme = settings?.boardTheme ?? BoardThemePreset.tournamentGreen;
+    final pieceStyle = settings?.pieceStyle ?? PieceStylePreset.staunton;
+    final showCoords = settings?.showCoordinates ?? true;
+    final showHints = settings?.showLegalMoveHints ?? true;
+    final enableAnim = settings?.enableMoveAnimation ?? true;
+
     return AspectRatio(
       aspectRatio: 1.0,
       child: Container(
@@ -75,8 +89,12 @@ class BoardView extends StatelessWidget {
                               controller.lastMove?.from == square ||
                               controller.lastMove?.to == square,
                           isKingInCheck: controller.kingInCheckSquare == square,
-                          showFileLabel: rankIndex == 7,
-                          showRankLabel: fileIndex == 0,
+                          showFileLabel: showCoords && rankIndex == 7,
+                          showRankLabel: showCoords && fileIndex == 0,
+                          showHints: showHints,
+                          enableAnimation: enableAnim,
+                          boardTheme: boardTheme,
+                          pieceStyle: pieceStyle,
                           onTap: () => controller.onSquareTapped(
                             square,
                             onPromotionRequested: onPromotionRequested,
@@ -105,6 +123,10 @@ class _SquareWidget extends StatelessWidget {
   final bool isKingInCheck;
   final bool showFileLabel;
   final bool showRankLabel;
+  final bool showHints;
+  final bool enableAnimation;
+  final BoardThemePreset boardTheme;
+  final PieceStylePreset pieceStyle;
   final VoidCallback onTap;
 
   const _SquareWidget({
@@ -117,28 +139,28 @@ class _SquareWidget extends StatelessWidget {
     required this.isKingInCheck,
     required this.showFileLabel,
     required this.showRankLabel,
+    required this.showHints,
+    required this.enableAnimation,
+    required this.boardTheme,
+    required this.pieceStyle,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color squareBg = isLight
-        ? BoardView.lightSquareColor
-        : BoardView.darkSquareColor;
+    Color squareBg = isLight ? boardTheme.lightSquare : boardTheme.darkSquare;
 
     if (isKingInCheck) {
-      squareBg = BoardView.inCheckColor;
+      squareBg = boardTheme.inCheckSquare;
     } else if (isSelected) {
-      squareBg = BoardView.selectedSquareColor;
+      squareBg = boardTheme.selectedSquare;
     } else if (isLastMove) {
-      squareBg = BoardView.lastMoveColor.withValues(alpha: 0.85);
+      squareBg = boardTheme.lastMoveSquare.withValues(alpha: 0.88);
     }
 
     final file = square[0];
     final rank = square[1];
-    final labelColor = isLight
-        ? BoardView.darkSquareColor
-        : BoardView.lightSquareColor;
+    final labelColor = isLight ? boardTheme.darkSquare : boardTheme.lightSquare;
 
     final pieceDescription = piece != null
         ? '${piece!.color == PlayerColor.white ? "หมากขาว" : "หมากดำ"} ${piece!.type.name}'
@@ -192,17 +214,37 @@ class _SquareWidget extends StatelessWidget {
                   ),
                 ),
 
-              // Chess piece (custom vector)
+              // Chess piece with smooth animation transition
               if (piece != null)
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: ChessPieceWidget(piece: piece!),
+                    child: enableAnimation
+                        ? AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 180),
+                            transitionBuilder: (child, animation) {
+                              return ScaleTransition(
+                                scale: animation,
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: KeyedSubtree(
+                              key: ValueKey('${piece!.color}_${piece!.type}'),
+                              child: ChessPieceWidget(
+                                piece: piece!,
+                                style: pieceStyle,
+                              ),
+                            ),
+                          )
+                        : ChessPieceWidget(piece: piece!, style: pieceStyle),
                   ),
                 ),
 
               // Legal move indicator
-              if (isLegalDestination)
+              if (showHints && isLegalDestination)
                 Center(
                   child: piece == null
                       ? Container(

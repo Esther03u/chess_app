@@ -50,6 +50,21 @@ class FakeDbService implements DbService {
     return count;
   }
 
+  final Map<String, String> _settings = {};
+
+  @override
+  Future<String?> getSetting(String key) async => _settings[key];
+
+  @override
+  Future<void> setSetting(String key, String value) async {
+    _settings[key] = value;
+  }
+
+  @override
+  Future<void> removeSetting(String key) async {
+    _settings.remove(key);
+  }
+
   @override
   Future<void> close() async {}
 }

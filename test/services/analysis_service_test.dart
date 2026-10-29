@@ -35,6 +35,15 @@ class FakeDbService implements DbService {
   Future<int> clearAll() async => 0;
 
   @override
+  Future<String?> getSetting(String key) async => null;
+
+  @override
+  Future<void> setSetting(String key, String value) async {}
+
+  @override
+  Future<void> removeSetting(String key) async {}
+
+  @override
   Future<void> close() async {}
 }
 

@@ -8,6 +8,7 @@ import '../providers/game_controller.dart';
 import 'game_screen.dart';
 import 'history_screen.dart';
 import 'puzzle_screen.dart';
+import 'settings_screen.dart';
 
 /// Main navigation shell and dashboard for the Chess application.
 /// Provides a clear, intuitive 4-tab interface with quick match start and mode configurations.
@@ -129,6 +130,10 @@ class MainHubScreenState extends State<MainHubScreen> {
 
             // Card 4: Game History & Analysis
             _buildHistoryCard(),
+            const SizedBox(height: 16),
+
+            // Card 5: Customization & Themes
+            _buildCustomizationCard(context),
             const SizedBox(height: 24),
           ],
         ),
@@ -186,6 +191,19 @@ class MainHubScreenState extends State<MainHubScreen> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.palette_outlined,
+              color: AppTheme.accentAmber,
+              size: 26,
+            ),
+            tooltip: 'ตกแต่งบอร์ดและตัวหมาก',
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            },
           ),
         ],
       ),
@@ -716,6 +734,66 @@ class MainHubScreenState extends State<MainHubScreen> {
                     SizedBox(height: 2),
                     Text(
                       'ดูย้อนหลัง Replay พร้อมกราฟวิเคราะห์ Advantage',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: AppTheme.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomizationCard(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentAmber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.palette_outlined,
+                  color: AppTheme.accentAmber,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ตกแต่งกระดานและตัวหมาก',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'เลือกธีมสีบอร์ด (เขียว/ไม้/หินชนวน) สไตล์ตัวหมาก และแอนิเมชัน',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textSecondary,

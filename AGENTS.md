@@ -662,7 +662,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | (pending) | ui | Impeccable technical audit: 100% theme token consolidation, TalkBack/VoiceOver semantics, and vector pieces in replay screen | module:ui, change-log |
+| 2026-10-29 | (pending) | ui | Customization system: 5 board themes, 4 piece styles (Staunton, Shaded, Minimalist, Unicode), move animations, SettingsScreen with live preview | module:ui, change-log, credits |
+| 2026-10-29 | 7368b3b | ui | Impeccable technical audit: 100% theme token consolidation, TalkBack/VoiceOver semantics, and vector pieces in replay screen | module:ui, change-log |
 | 2026-10-29 | 6c29a38 | ui | Impeccable redesign: MainHubScreen with bottom navigation, tournament dark theme, and CustomPainter vector chess pieces | module:board, change-log |
 | 2026-10-29 | 804cea5 | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
 | 2026-10-29 | 9963508 | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |
@@ -689,6 +690,7 @@ Rules for this section:
 | provider | 6.1.5+1 | state | MIT | https://pub.dev/packages/provider | 2026-10-29 |
 | sqflite | 2.4.5 | local SQLite DB | BSD-2-Clause | https://pub.dev/packages/sqflite | 2026-10-29 |
 | path | 1.9.1 | path manipulation | BSD-3-Clause | https://pub.dev/packages/path | 2026-10-29 |
+| shared_preferences | 2.5.6 | settings persistence | BSD-3-Clause | https://pub.dev/packages/shared_preferences | 2026-10-29 |
 
 | Asset / service | Author | License | Required attribution | Source URL |
 |---|---|---|---|---|

@@ -9,6 +9,7 @@ import 'core/strings.dart';
 import 'core/theme.dart';
 import 'providers/clock_controller.dart';
 import 'providers/game_controller.dart';
+import 'providers/settings_provider.dart';
 import 'screens/main_hub_screen.dart';
 
 void main() {
@@ -27,6 +28,7 @@ class ChessApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => ClockController()),
         ChangeNotifierProxyProvider<ClockController, GameController>(
           create: (ctx) =>
