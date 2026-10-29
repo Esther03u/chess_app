@@ -533,7 +533,7 @@ Rules for this section:
 | Bootstrap | Must | T-001 | done | 2026-10-29 | Initial Flutter project and docs |
 | Observation table | Must | T-002 | todo | — | user-owned |
 | Board & Rules | Must | T-003 | done | 2026-10-29 | FR1 unit tests passed; 2-player board UI complete |
-| Puzzle API spike | Must | T-004 | todo | — | verify V3 |
+| Puzzle API spike | Must | T-004 | done | 2026-10-29 | Real fixture verified; parser and error handling complete |
 | Engine / Bot | Must | T-005 | todo | — | fallback trigger 2026-11-02 EOD |
 | Clock | Must | T-006 | todo | — | |
 | Storage | Must | T-007 | todo | — | |
@@ -583,13 +583,13 @@ Rules for this section:
 <!-- STATE:END module:storage -->
 
 <!-- STATE:BEGIN module:api -->
-- Last updated: —
-- Files: —
-- Endpoint in use: `GET https://lichess.org/api/puzzle/daily` (UNVERIFIED until V3 done)
-- Fixture: `test/fixtures/puzzle_daily.json` (not yet created)
-- Decisions: Opening Explorer excluded from scope (token requirement, V5)
-- Open issues: error handling per §3.7.1 not yet implemented
-- Manual test steps: network on/off on a release build
+- Last updated: 2026-10-29
+- Files: lib/models/puzzle.dart, lib/services/lichess_api.dart, test/fixtures/puzzle_daily.json, test/services/lichess_api_test.dart
+- Endpoint in use: `GET https://lichess.org/api/puzzle/daily` (verified V3 from live endpoint)
+- Fixture: `test/fixtures/puzzle_daily.json` (captured and verified)
+- Decisions: verified V3 (daily puzzle response contains puzzle.fen, puzzle.solution UCI array, puzzle.initialPly, and game metadata); Opening Explorer excluded from scope (token requirement, V5).
+- Error handling: implemented §3.7.1 (timeouts 8s, retry with exponential backoff on 5xx/timeout, 429 wait & retry, no-connectivity cached fallback, null-safe parsing).
+- Manual test steps: run unit tests on fixture, simulate network disconnection.
 <!-- STATE:END module:api -->
 
 <!-- STATE:BEGIN module:analysis -->
@@ -616,6 +616,7 @@ Rules for this section:
 <!-- STATE:BEGIN decision-log -->
 | Date | Decision | Reason | Alternatives not chosen |
 |---|---|---|---|
+| 2026-10-29 | Verified Lichess Daily Puzzle API (V3) | Live endpoint returns puzzle with exact starting FEN, UCI solution, and initialPly; no auth required | Web scraping |
 | 2026-10-29 | Verified `chess` 0.8.1 (V2) | Covers full FEN/PGN, castling, en passant, promotion, and draw rules; MIT/BSD license | Custom rules engine |
 | 2026-10-29 | Keep project state, rules and tasks in this single AGENTS.md with STATE markers | Lets agents make targeted updates and onboard quickly | Multiple separate docs |
 | 2026-10-29 | Online play, Opening Explorer, themes cut from submission scope | Limited time (exam week) | Build all features |
@@ -636,7 +637,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 354ff59 | board | T-003: Full chess rules and 2-player board UI | status-board, module:board, decision-log, change-log, credits |
+| 2026-10-29 | 86c8d36 | api | T-004: Lichess daily puzzle API spike, parser and fixture | status-board, module:api, decision-log, change-log, credits |
+| 2026-10-29 | 9bfd520 | board | T-003: Full chess rules and 2-player board UI | status-board, module:board, decision-log, change-log, credits |
 | 2026-10-29 | 84dce56 | chore | T-001: Bootstrap Flutter repository and project docs | snapshot, status-board, change-log |
 | 2026-10-29 | (none yet) | docs | Created agent-facing spec (AGENTS.md) | all |
 <!-- STATE:END change-log -->
@@ -650,14 +652,14 @@ Rules for this section:
 |---|---|---|---|---|---|
 | chess | 0.8.1 | rules, FEN/PGN | MIT / BSD-2-Clause | https://pub.dev/packages/chess | 2026-10-29 |
 | stockfish (package) | — | engine | GPL expected — UNVERIFIED | | |
-| dio | — | HTTP | UNVERIFIED | | |
+| dio | 5.11.1 | HTTP | MIT | https://pub.dev/packages/dio | 2026-10-29 |
 | provider | 6.1.5+1 | state | MIT | https://pub.dev/packages/provider | 2026-10-29 |
 | sqflite | — | local DB | UNVERIFIED | | |
 
 | Asset / service | Author | License | Required attribution | Source URL |
 |---|---|---|---|---|
 | (none yet) | | | | |
-| Lichess API | Lichess | per Lichess terms — UNVERIFIED | credit Lichess where data is shown | |
+| Lichess API | Lichess | Open API (no auth for daily puzzle) | credit Lichess where data is shown | https://lichess.org/api | 2026-10-29 |
 <!-- STATE:END credits -->
 
 Notes:
