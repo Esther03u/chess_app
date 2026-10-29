@@ -538,7 +538,7 @@ Rules for this section:
 | Clock | Must | T-006 | done | 2026-10-29 | Chess clock with increment, flag detection, FakeClockTicker, and UI |
 | Storage | Must | T-007 | done | 2026-10-29 | SQLite persistence, PGN round-trip, History & Replay screens |
 | Puzzle screen | Must | T-008 | done | 2026-10-29 | FR5 satisfied: Daily puzzle UI, move validation, opponent reply, offline/retry handling |
-| Tests & quality | Must | T-009 | todo | — | |
+| Tests & quality | Must | T-009 | done | 2026-10-29 | 58 tests passed green; dart analyze clean; dart format clean; no secrets in repo |
 | Analysis | Should | T-010 | todo | — | cut if Must not done by 2026-11-04 PM |
 | Release verification | Must | T-011 | todo | — | |
 | Report & demo support | Must | T-012 | todo | — | student owns final report |
@@ -610,10 +610,17 @@ Rules for this section:
 <!-- STATE:END module:ui -->
 
 <!-- STATE:BEGIN module:tests -->
-- Last updated: —
-- Covered: —
-- Not yet covered: rules edge cases, classification math, PGN round-trip, puzzle JSON parsing
-- Commands: `flutter test`
+- Last updated: 2026-10-29
+- Covered:
+  - Domain rules: castling (normal, queenside, through check blocked), en passant, promotion, checkmate, stalemate, threefold repetition, 50-move rule, insufficient material, UCI move parsing (`game_logic_test.dart` - 18 tests)
+  - Engine / Bot: Minimax depth 1..3, alpha-beta pruning, mate-in-1 finish, free Queen capture, side-to-move centipawn eval, 5 games Hard vs Easy (5-0) (`simple_bot_test.dart` - 10 tests)
+  - Controller & Bot UI: UI mode toggle, player color selection, bot move execution, undo in bot mode (`game_controller_test.dart` - 6 tests)
+  - Clock: increment addition (+2s, +10s), flag detection (loss on time 0-1 / 1-0), unlimited mode, pause/resume, FakeClockTicker (`clock_controller_test.dart` - 7 tests)
+  - Storage & PGN: PGN round-trip export/import preserving moves and results, SQLite CRUD operations (`pgn_roundtrip_test.dart` - 2 tests, `db_service_test.dart` - 5 tests)
+  - Screens: HistoryScreen & GameReplayScreen navigation/replay (`history_screen_test.dart` - 4 tests)
+  - Puzzle: Daily puzzle parsing, starting position derivation, move validation, opponent auto-reply, victory banner, wrong move handling, offline retry (`lichess_api_test.dart` - 4 tests, `puzzle_screen_test.dart` - 6 tests)
+- Total tests: 58 unit and widget tests, 100% passing green.
+- Commands: `flutter test`, `dart analyze`, `dart format --output=none --set-exit-if-changed .`
 <!-- STATE:END module:tests -->
 
 <!-- STATE:BEGIN decision-log -->
@@ -641,7 +648,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 28ee922 | puzzle | T-008: Daily puzzle screen, solution verification, opponent auto-reply, offline fallback | status-board, module:api, change-log |
+| 2026-10-29 | 70e377d | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |
+| 2026-10-29 | fb38922 | puzzle | T-008: Daily puzzle screen, solution verification, opponent auto-reply, offline fallback | status-board, module:api, change-log |
 | 2026-10-29 | 72e99b7 | storage | T-007: SQLite storage, PGN round-trip, History and GameReplay screens | status-board, module:storage, change-log, credits |
 | 2026-10-29 | e04f7d2 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |
 | 2026-10-29 | e6d4d3a | engine | T-005: Engine integration with fallback (Minimax, 3 levels, off-thread compute, UI controls) | status-board, module:engine, decision-log, open-issues, change-log, credits |
