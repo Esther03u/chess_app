@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import '../core/strings.dart';
 import '../domain/game_logic.dart';
+import '../models/game_record.dart';
+import '../services/db_service.dart';
 import '../services/engine_service.dart';
 import 'clock_controller.dart';
 
@@ -18,16 +20,19 @@ class MoveHistoryItem {
   const MoveHistoryItem({required this.from, required this.to, this.san});
 }
 
-/// Controller managing the state of an ongoing chess game.
+/// Controller managing the state of an ongoing chess game and history auto-save.
 class GameController extends ChangeNotifier {
   final GameLogic _game;
   final EngineService _engineService;
+  final DbService _dbService;
   ClockController? _clockController;
 
   GameMode _gameMode;
   PlayerColor _playerColor;
   BotLevel _botLevel;
   PlayerColor? _timedOutPlayer;
+  PlayerColor? _resignedPlayer;
+  bool _hasSavedToDb = false;
 
   String? _selectedSquare;
   List<String> _legalDestinations = [];
@@ -40,12 +45,14 @@ class GameController extends ChangeNotifier {
     GameLogic? game,
     EngineService? engineService,
     ClockController? clockController,
+    DbService? dbService,
     this._gameMode = GameMode.humanVsHuman,
     this._playerColor = PlayerColor.white,
     BotLevel botLevel = BotLevel.medium,
   }) : _game = game ?? GameLogic(),
        _engineService =
            engineService ?? SimpleBotEngineService(level: botLevel),
+       _dbService = dbService ?? DbService(),
        _botLevel = botLevel {
     if (clockController != null) {
       attachClock(clockController);
@@ -60,20 +67,24 @@ class GameController extends ChangeNotifier {
     clock.onTimeout = (timedOutColor) {
       _timedOutPlayer = timedOutColor;
       _clockController?.pause();
+      saveGameToHistory();
       notifyListeners();
     };
   }
 
   GameLogic get game => _game;
+  DbService get dbService => _dbService;
   ClockController? get clock => _clockController;
   GameMode get gameMode => _gameMode;
   PlayerColor get playerColor => _playerColor;
   BotLevel get botLevel => _botLevel;
   PlayerColor get turn => _game.turn;
   bool get isTimedOut => _timedOutPlayer != null;
+  bool get isResigned => _resignedPlayer != null;
   PlayerColor? get timedOutPlayer => _timedOutPlayer;
-  bool get isGameOver => _game.isGameOver || isTimedOut;
-  bool get isInCheck => !isTimedOut && _game.isInCheck;
+  PlayerColor? get resignedPlayer => _resignedPlayer;
+  bool get isGameOver => _game.isGameOver || isTimedOut || isResigned;
+  bool get isInCheck => !isTimedOut && !isResigned && _game.isInCheck;
   bool get isBotThinking => _isBotThinking;
   bool get isBotTurn =>
       _gameMode == GameMode.vsBot && turn != _playerColor && !isGameOver;
@@ -87,6 +98,9 @@ class GameController extends ChangeNotifier {
   String? get result {
     if (isTimedOut) {
       return _timedOutPlayer == PlayerColor.white ? '0-1' : '1-0';
+    }
+    if (isResigned) {
+      return _resignedPlayer == PlayerColor.white ? '0-1' : '1-0';
     }
     return _game.result;
   }
@@ -115,6 +129,11 @@ class GameController extends ChangeNotifier {
       return _timedOutPlayer == PlayerColor.white
           ? AppStrings.whiteTimedOut
           : AppStrings.blackTimedOut;
+    }
+    if (isResigned) {
+      return _resignedPlayer == PlayerColor.white
+          ? AppStrings.blackWon
+          : AppStrings.whiteWon;
     }
     if (_isBotThinking) {
       return AppStrings.botThinking;
@@ -172,6 +191,48 @@ class GameController extends ChangeNotifier {
       engine.setBotLevel(level);
     }
     notifyListeners();
+  }
+
+  /// Handles player resignation.
+  Future<void> resign(PlayerColor player) async {
+    if (isGameOver) return;
+    _resignedPlayer = player;
+    _clockController?.pause();
+    await saveGameToHistory();
+    notifyListeners();
+  }
+
+  /// Automatically persists completed game to SQLite (FR4).
+  Future<int?> saveGameToHistory() async {
+    if (_hasSavedToDb || history.isEmpty) return null;
+    _hasSavedToDb = true;
+
+    final whiteName = _gameMode == GameMode.vsBot
+        ? (_playerColor == PlayerColor.white
+              ? 'คุณ'
+              : 'บอท (${_botLevel.name})')
+        : AppStrings.white;
+    final blackName = _gameMode == GameMode.vsBot
+        ? (_playerColor == PlayerColor.black
+              ? 'คุณ'
+              : 'บอท (${_botLevel.name})')
+        : AppStrings.black;
+
+    final record = GameRecord(
+      pgn: _game.toPgn(),
+      white: whiteName,
+      black: blackName,
+      result: result ?? '*',
+      timeControl: _clockController?.timeControl.label,
+      playedAt: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    try {
+      return await _dbService.saveGame(record);
+    } catch (e) {
+      debugPrint('Failed to save game to history: $e');
+      return null;
+    }
   }
 
   /// Handles a tap on a square of the board.
@@ -260,9 +321,9 @@ class GameController extends ChangeNotifier {
       // Manage Chess Clock (FR3)
       if (isGameOver) {
         _clockController?.pause();
+        saveGameToHistory();
       } else {
         if (_game.history.length == 1) {
-          // First move starts the clock for Black
           _clockController?.start(turn);
         } else {
           _clockController?.switchTurn(turn);
@@ -357,6 +418,8 @@ class GameController extends ChangeNotifier {
     _isAwaitingPromotion = false;
     _isBotThinking = false;
     _timedOutPlayer = null;
+    _resignedPlayer = null;
+    _hasSavedToDb = false;
     _clockController?.reset();
     notifyListeners();
 

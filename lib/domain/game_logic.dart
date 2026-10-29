@@ -181,6 +181,11 @@ class GameLogic {
     );
   }
 
+  /// Attempts to make a move from Standard Algebraic Notation (SAN), e.g. 'e4', 'Nf3', 'O-O'.
+  bool tryMoveSan(String san) {
+    return _chess.move(san);
+  }
+
   /// Undoes the last move. Returns true if a move was undone, false otherwise.
   bool undo() {
     final move = _chess.undo_move();

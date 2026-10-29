@@ -1,4 +1,4 @@
-# AGENTS.md — Chess App (Flutter/Dart) · Agent Operating Spec
+z# AGENTS.md — Chess App (Flutter/Dart) · Agent Operating Spec
 
 <!-- audience: AI coding agents | doc-version: 1 | created: 2026-10-29 | language: English (talk to the user in Thai) -->
 
@@ -536,7 +536,7 @@ Rules for this section:
 | Puzzle API spike | Must | T-004 | done | 2026-10-29 | Real fixture verified; parser and error handling complete |
 | Engine / Bot | Must | T-005 | done | 2026-10-29 | Pure Dart Minimax engine with 3 levels, off-thread compute, 5/5 wins Hard vs Easy |
 | Clock | Must | T-006 | done | 2026-10-29 | Chess clock with increment, flag detection, FakeClockTicker, and UI |
-| Storage | Must | T-007 | todo | — | |
+| Storage | Must | T-007 | done | 2026-10-29 | SQLite persistence, PGN round-trip, History & Replay screens |
 | Puzzle screen | Must | T-008 | todo | — | |
 | Tests & quality | Must | T-009 | todo | — | |
 | Analysis | Should | T-010 | todo | — | cut if Must not done by 2026-11-04 PM |
@@ -575,12 +575,13 @@ Rules for this section:
 <!-- STATE:END module:clock -->
 
 <!-- STATE:BEGIN module:storage -->
-- Last updated: —
-- Files: —
+- Last updated: 2026-10-29
+- Files: lib/models/game_record.dart, lib/services/db_service.dart, lib/screens/history_screen.dart, lib/providers/game_controller.dart, test/domain/pgn_roundtrip_test.dart, test/services/db_service_test.dart, test/screens/history_screen_test.dart
 - Schema version: 1 (see §3.5)
-- Implemented: —
-- Open issues: —
-- Manual test steps: finish a game, close the app, reopen, confirm it is listed and replayable
+- Implemented: GameRecord model, DbService with SQLite persistence (`sqflite: ^2.4.5` + `path: ^1.9.1`), auto-save completed games on checkmate, draw, resign, and timeout, HistoryScreen listing completed matches in descending order with result badges and time controls, interactive GameReplayScreen for move-by-move navigation (first, prev, next, last) from saved PGN (FR4).
+- Verified: PGN round-trip unit tests passed (preserving standard moves, castling, en passant, promotion); DbService CRUD tests passed on in-memory SQLite; HistoryScreen & GameReplayScreen widget tests passed.
+- Open issues: none
+- Manual test steps: Finish a game -> open History screen from AppBar -> confirm game is listed with correct result and players -> tap to open GameReplayScreen -> step through moves -> delete record.
 <!-- STATE:END module:storage -->
 
 <!-- STATE:BEGIN module:api -->
@@ -639,7 +640,8 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
-| 2026-10-29 | 9a32711 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |
+| 2026-10-29 | 72e99b7 | storage | T-007: SQLite storage, PGN round-trip, History and GameReplay screens | status-board, module:storage, change-log, credits |
+| 2026-10-29 | e04f7d2 | clock | T-006: Chess clock with increment, flag detection, and UI integration | status-board, module:clock, change-log |
 | 2026-10-29 | e6d4d3a | engine | T-005: Engine integration with fallback (Minimax, 3 levels, off-thread compute, UI controls) | status-board, module:engine, decision-log, open-issues, change-log, credits |
 | 2026-10-29 | 4a41fcc | api | T-004: Lichess daily puzzle API spike, parser and fixture | status-board, module:api, decision-log, change-log, credits |
 | 2026-10-29 | 9bfd520 | board | T-003: Full chess rules and 2-player board UI | status-board, module:board, decision-log, change-log, credits |
@@ -658,7 +660,8 @@ Rules for this section:
 | stockfish | 1.8.1 | native Android engine | GPL-3.0 | https://pub.dev/packages/stockfish | 2026-10-29 |
 | dio | 5.11.1 | HTTP | MIT | https://pub.dev/packages/dio | 2026-10-29 |
 | provider | 6.1.5+1 | state | MIT | https://pub.dev/packages/provider | 2026-10-29 |
-| sqflite | — | local DB | UNVERIFIED | | |
+| sqflite | 2.4.5 | local SQLite DB | BSD-2-Clause | https://pub.dev/packages/sqflite | 2026-10-29 |
+| path | 1.9.1 | path manipulation | BSD-3-Clause | https://pub.dev/packages/path | 2026-10-29 |
 
 | Asset / service | Author | License | Required attribution | Source URL |
 |---|---|---|---|---|

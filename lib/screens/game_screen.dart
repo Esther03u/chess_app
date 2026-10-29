@@ -6,6 +6,7 @@ import '../domain/game_logic.dart';
 import '../providers/game_controller.dart';
 import '../widgets/board_view.dart';
 import '../widgets/clock_view.dart';
+import 'history_screen.dart';
 
 /// Screen supporting two-player pass & play or playing against the bot (3 difficulty levels)
 /// with digital chess clocks, increment, and flag detection (FR3).
@@ -50,6 +51,18 @@ class GameScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             elevation: 0,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.history),
+                tooltip: AppStrings.gameHistory,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          HistoryScreen(dbService: controller.dbService),
+                    ),
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.timer_outlined),
                 tooltip: AppStrings.timeControl,
@@ -636,6 +649,8 @@ class GameScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      await controller.resign(controller.turn);
+      if (!context.mounted) return;
       final isBot = controller.gameMode == GameMode.vsBot;
       final winnerMsg = isBot
           ? AppStrings.botWon

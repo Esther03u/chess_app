@@ -59,4 +59,12 @@ class AppStrings {
   static const String rapid15p10 = '15 นาที + 10 วิ (Rapid)';
   static const String whiteTimedOut = 'หมากขาวหมดเวลา - หมากดำชนะ (0-1)';
   static const String blackTimedOut = 'หมากดำหมดเวลา - หมากขาวชนะ (1-0)';
+
+  // History & Storage (FR4)
+  static const String gameHistory = 'ประวัติการเล่น (Game History)';
+  static const String noGamesYet = 'ยังไม่มีประวัติการเล่น';
+  static const String replay = 'ดูย้อนหลัง (Replay)';
+  static const String delete = 'ลบ';
+  static const String confirmDelete = 'ต้องการลบประวัติตานี้หรือไม่?';
+  static const String movesCount = 'จำนวนตาเดิน';
 }
