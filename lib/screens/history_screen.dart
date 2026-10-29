@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../core/strings.dart';
+import '../core/theme.dart';
 import '../domain/game_logic.dart';
 import '../models/game_record.dart';
 import '../services/db_service.dart';
+import '../widgets/board_view.dart';
 import 'analysis_screen.dart';
 
 /// Screen displaying the history of completed games loaded from SQLite (FR4).
@@ -58,15 +60,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF262421),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         automaticallyImplyLeading: !widget.isEmbeddedInHub,
         title: const Text(
           AppStrings.gameHistory,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -78,7 +80,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF769656)),
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
             )
           : _games.isEmpty
           ? const Center(
@@ -126,9 +128,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
 
     return Card(
-      color: const Color(0xFF312E2B),
+      color: AppTheme.surfaceCard,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        side: const BorderSide(color: AppTheme.border),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(8.0),
         onTap: () => _openReplay(game),
@@ -190,8 +195,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF262421),
+                              color: AppTheme.surfaceVariant,
                               borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppTheme.border),
                             ),
                             child: Text(
                               game.timeControl!,
@@ -237,7 +243,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF312E2B),
+        backgroundColor: AppTheme.surfaceCard,
         title: const Text(
           AppStrings.delete,
           style: TextStyle(color: Colors.white),
@@ -349,14 +355,14 @@ class _GameReplayScreenState extends State<GameReplayScreen> {
     final record = widget.record;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF262421),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(
           '${record.white ?? AppStrings.white} vs ${record.black ?? AppStrings.black}',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -383,8 +389,9 @@ class _GameReplayScreenState extends State<GameReplayScreen> {
               ),
               margin: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF312E2B),
+                color: AppTheme.surfaceCard,
                 borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(color: AppTheme.border),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -447,26 +454,16 @@ class _GameReplayScreenState extends State<GameReplayScreen> {
                                 return Expanded(
                                   child: Container(
                                     color: isLightSquare
-                                        ? const Color(0xFFEEEED2)
-                                        : const Color(0xFF769656),
+                                        ? AppTheme.boardLight
+                                        : AppTheme.boardDark,
                                     child: Center(
                                       child: piece != null
-                                          ? Text(
-                                              _pieceSymbol(piece),
-                                              style: TextStyle(
-                                                fontSize: 32,
-                                                color:
-                                                    piece.color ==
-                                                        PlayerColor.white
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                                shadows: const [
-                                                  Shadow(
-                                                    color: Colors.black45,
-                                                    blurRadius: 2,
-                                                    offset: Offset(0, 1),
-                                                  ),
-                                                ],
+                                          ? Padding(
+                                              padding: const EdgeInsets.all(
+                                                3.0,
+                                              ),
+                                              child: ChessPieceWidget(
+                                                piece: piece,
                                               ),
                                             )
                                           : null,
@@ -526,22 +523,5 @@ class _GameReplayScreenState extends State<GameReplayScreen> {
         ),
       ),
     );
-  }
-
-  String _pieceSymbol(PieceInfo piece) {
-    switch (piece.type) {
-      case PieceType.pawn:
-        return piece.color == PlayerColor.white ? '\u2659' : '\u265F';
-      case PieceType.knight:
-        return piece.color == PlayerColor.white ? '\u2658' : '\u265E';
-      case PieceType.bishop:
-        return piece.color == PlayerColor.white ? '\u2657' : '\u265D';
-      case PieceType.rook:
-        return piece.color == PlayerColor.white ? '\u2656' : '\u265C';
-      case PieceType.queen:
-        return piece.color == PlayerColor.white ? '\u2655' : '\u265B';
-      case PieceType.king:
-        return piece.color == PlayerColor.white ? '\u2654' : '\u265A';
-    }
   }
 }

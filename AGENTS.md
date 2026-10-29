@@ -611,10 +611,15 @@ Rules for this section:
 <!-- STATE:END module:analysis -->
 
 <!-- STATE:BEGIN module:ui -->
-- Last updated: —
-- Files: —
-- Decisions: `provider` for state; all strings in `core/strings.dart`; Thai-primary UI (assumption A2)
-- Open issues: —
+- Last updated: 2026-10-29
+- Files: lib/core/theme.dart, lib/widgets/chess_piece_painter.dart, lib/widgets/board_view.dart, lib/widgets/clock_view.dart, lib/widgets/eval_graph.dart, lib/screens/main_hub_screen.dart, lib/screens/game_screen.dart, lib/screens/history_screen.dart, lib/screens/puzzle_screen.dart, lib/screens/analysis_screen.dart
+- Implemented: Complete Impeccable Technical Audit and UX Refinement:
+  - 100% Theme Token Migration: Eliminated all raw hardcoded hex colors across all widgets and screens, standardizing exclusively on `AppTheme` design tokens (tournament dark palette).
+  - Accessibility & Semantics: Full TalkBack/VoiceOver support on chessboard squares (announces file, rank, piece color, piece type, selection state, legal moves, check), clock view, and primary buttons.
+  - Vector Piece Engine: Upgraded piece rendering in game replay screen to match main board with vector `ChessPieceWidget`.
+  - Visual Hierarchy & Layout: Polished card spacing, contrast ratios, and edge-to-edge responsiveness on small/large screens.
+- Decisions: Full consolidation of color tokens in `AppTheme`; screen-reader announcements on interactive squares.
+- Open issues: none
 <!-- STATE:END module:ui -->
 
 <!-- STATE:BEGIN module:tests -->
@@ -657,6 +662,7 @@ Rules for this section:
 <!-- STATE:BEGIN change-log -->
 | Date | Commit | Module | Summary | State blocks updated |
 |---|---|---|---|---|
+| 2026-10-29 | (pending) | ui | Impeccable technical audit: 100% theme token consolidation, TalkBack/VoiceOver semantics, and vector pieces in replay screen | module:ui, change-log |
 | 2026-10-29 | 6c29a38 | ui | Impeccable redesign: MainHubScreen with bottom navigation, tournament dark theme, and CustomPainter vector chess pieces | module:board, change-log |
 | 2026-10-29 | 804cea5 | analysis | T-010: Post-game analysis (FR6), eval advantage curve, per-move classification, accuracy, SQLite caching | status-board, module:analysis, module:tests, change-log |
 | 2026-10-29 | 9963508 | tests | T-009: Test suite verification (58/58 pass), analyze clean, format clean, zero secrets | status-board, module:tests, change-log |

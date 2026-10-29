@@ -359,7 +359,7 @@ class MainHubScreenState extends State<MainHubScreen> {
                 _buildSideChoice(
                   label: AppStrings.black,
                   icon: Icons.circle,
-                  iconColor: const Color(0xFF2A2824),
+                  iconColor: AppTheme.blackPieceFill,
                   isSelected:
                       !_isRandomColor && _selectedColor == PlayerColor.black,
                   onTap: () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme.dart';
 import '../domain/classification.dart';
 import '../models/analysis_result.dart';
 
@@ -36,9 +37,9 @@ class EvalGraph extends StatelessWidget {
             height: height,
             margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(6.0),
-              border: Border.all(color: Colors.white12),
+              color: AppTheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: AppTheme.border),
             ),
             child: CustomPaint(
               size: Size(width, height),
@@ -111,7 +112,7 @@ class _EvalGraphPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = const Color(0xFF769656).withValues(alpha: 0.35)
+      ..color = AppTheme.primaryGreen.withValues(alpha: 0.35)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 
@@ -128,8 +129,8 @@ class _EvalGraphPainter extends CustomPainter {
     canvas.drawPath(strokePath, linePaint);
 
     // 5. Draw blunder and mistake indicators
-    final mistakePaint = Paint()..color = Colors.orangeAccent;
-    final blunderPaint = Paint()..color = const Color(0xFFE53935);
+    final mistakePaint = Paint()..color = AppTheme.accentAmber;
+    final blunderPaint = Paint()..color = AppTheme.errorRed;
 
     for (int i = 0; i < n; i++) {
       final move = moves[i];

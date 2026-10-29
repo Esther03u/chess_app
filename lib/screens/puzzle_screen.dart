@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/strings.dart';
+import '../core/theme.dart';
 import '../domain/game_logic.dart';
 import '../models/puzzle.dart';
 import '../services/lichess_api.dart';
@@ -253,7 +254,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF312E2B),
+        backgroundColor: AppTheme.surfaceCard,
         title: const Text(
           AppStrings.choosePromotion,
           style: TextStyle(color: Colors.white, fontSize: 16),
@@ -298,15 +299,15 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF262421),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         automaticallyImplyLeading: !widget.isEmbeddedInHub,
         title: const Text(
           AppStrings.dailyPuzzle,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -359,7 +360,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF769656),
+                backgroundColor: AppTheme.primaryGreen,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -471,8 +472,9 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
       margin: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
+        color: AppTheme.surfaceCard,
         borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Column(
         children: [
@@ -487,7 +489,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF769656),
+                      color: AppTheme.primaryGreen,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -580,19 +582,19 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     String message;
 
     if (_isSolved) {
-      bgColor = const Color(0xFF629924);
+      bgColor = AppTheme.primaryGreenDark;
       icon = Icons.check_circle_outline;
       message = AppStrings.puzzleSolved;
     } else if (_isWrongMove) {
-      bgColor = const Color(0xFFC33939);
+      bgColor = AppTheme.errorRed;
       icon = Icons.cancel_outlined;
       message = AppStrings.wrongMove;
     } else if (_isOpponentMoving) {
-      bgColor = Colors.amber.shade800;
+      bgColor = AppTheme.accentAmberDark;
       icon = Icons.hourglass_top_outlined;
       message = 'ฝ่ายตรงข้ามกำลังเดิน...';
     } else {
-      bgColor = const Color(0xFF312E2B);
+      bgColor = AppTheme.surfaceCard;
       icon = Icons.psychology_outlined;
       message = AppStrings.yourTurnToMove;
     }
@@ -723,8 +725,9 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
-        borderRadius: BorderRadius.circular(6.0),
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Row(
         children: [

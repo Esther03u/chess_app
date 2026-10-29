@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/theme.dart';
 import '../domain/game_logic.dart';
 import '../providers/clock_controller.dart';
 
 /// Digital chess clock widget displaying remaining time, active state,
-/// and low-time warnings.
+/// and low-time warnings. Refactored with semantic theme tokens and accessibility.
 class ClockView extends StatelessWidget {
   final PlayerColor color;
   final String playerName;
@@ -31,76 +32,90 @@ class ClockView extends StatelessWidget {
         Border? border;
 
         if (isFlagged) {
-          backgroundColor = const Color(0xFF4A1E1E);
+          backgroundColor = AppTheme.errorRed.withValues(alpha: 0.25);
           textColor = Colors.redAccent.shade100;
-          border = Border.all(color: Colors.redAccent, width: 2);
+          border = Border.all(color: AppTheme.errorRed, width: 2);
         } else if (isActive) {
           backgroundColor = isLowTime
-              ? const Color(0xFF4A2A1A)
-              : const Color(0xFF3F4E34);
-          textColor = isLowTime ? Colors.amberAccent : Colors.white;
+              ? AppTheme.accentAmber.withValues(alpha: 0.25)
+              : AppTheme.primaryGreen.withValues(alpha: 0.22);
+          textColor = isLowTime ? AppTheme.accentAmber : Colors.white;
           border = Border.all(
-            color: isLowTime ? Colors.amberAccent : const Color(0xFF81B64C),
+            color: isLowTime ? AppTheme.accentAmber : AppTheme.primaryGreen,
             width: 2,
           );
         } else {
-          backgroundColor = const Color(0xFF262421);
-          textColor = Colors.white70;
-          border = Border.all(color: Colors.white12, width: 1);
+          backgroundColor = AppTheme.surfaceVariant;
+          textColor = AppTheme.textSecondary;
+          border = Border.all(color: AppTheme.border, width: 1);
         }
 
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(8.0),
-            border: border,
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color:
-                          (isLowTime ? Colors.amber : const Color(0xFF81B64C))
-                              .withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+        final formattedTime = clock.formatTime(color);
+        final sideLabel = color == PlayerColor.white ? 'หมากขาว' : 'หมากดำ';
+
+        return Semantics(
+          label:
+              'นาฬิกา $sideLabel: $formattedTime${isActive ? ", กำลังเดิน" : ""}',
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 8.0,
+            ),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8.0),
+              border: border,
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color:
+                            (isLowTime
+                                    ? AppTheme.accentAmber
+                                    : AppTheme.primaryGreen)
+                                .withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color == PlayerColor.white
+                        ? Colors.white
+                        : Colors.black,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white54, width: 1),
+                  ),
+                ),
+                if (playerName.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    playerName,
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: color == PlayerColor.white
-                      ? Colors.white
-                      : Colors.black,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white54, width: 1),
+                  ),
+                ],
+                const SizedBox(width: 12),
+                Text(
+                  formattedTime,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                playerName,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                clock.formatTime(color),
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

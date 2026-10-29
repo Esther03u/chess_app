@@ -36,7 +36,7 @@ class BoardView extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: const Color(0xFF383531), width: 3.0),
+          border: Border.all(color: AppTheme.border, width: 3.0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.35),
@@ -140,75 +140,91 @@ class _SquareWidget extends StatelessWidget {
         ? BoardView.darkSquareColor
         : BoardView.lightSquareColor;
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        color: squareBg,
-        child: Stack(
-          children: [
-            // Rank label on leftmost squares
-            if (showRankLabel)
-              Positioned(
-                top: 2,
-                left: 3,
-                child: Text(
-                  rank,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: labelColor.withValues(alpha: 0.85),
+    final pieceDescription = piece != null
+        ? '${piece!.color == PlayerColor.white ? "หมากขาว" : "หมากดำ"} ${piece!.type.name}'
+        : 'ช่องว่าง';
+    final stateDescription = [
+      if (isSelected) 'เลือกอยู่',
+      if (isLegalDestination) 'เดินได้',
+      if (isKingInCheck) 'ถูกรุก',
+    ].join(', ');
+    final fullSemanticLabel =
+        '$square $pieceDescription${stateDescription.isNotEmpty ? ' $stateDescription' : ''}';
+
+    return Semantics(
+      label: fullSemanticLabel,
+      button: true,
+      enabled: true,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          color: squareBg,
+          child: Stack(
+            children: [
+              // Rank label on leftmost squares
+              if (showRankLabel)
+                Positioned(
+                  top: 2,
+                  left: 3,
+                  child: Text(
+                    rank,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: labelColor.withValues(alpha: 0.85),
+                    ),
                   ),
                 ),
-              ),
 
-            // File label on bottom squares
-            if (showFileLabel)
-              Positioned(
-                bottom: 1,
-                right: 3,
-                child: Text(
-                  file,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: labelColor.withValues(alpha: 0.85),
+              // File label on bottom squares
+              if (showFileLabel)
+                Positioned(
+                  bottom: 1,
+                  right: 3,
+                  child: Text(
+                    file,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: labelColor.withValues(alpha: 0.85),
+                    ),
                   ),
                 ),
-              ),
 
-            // Chess piece (custom vector)
-            if (piece != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: ChessPieceWidget(piece: piece!),
+              // Chess piece (custom vector)
+              if (piece != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ChessPieceWidget(piece: piece!),
+                  ),
                 ),
-              ),
 
-            // Legal move indicator
-            if (isLegalDestination)
-              Center(
-                child: piece == null
-                    ? Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.24),
-                          shape: BoxShape.circle,
-                        ),
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.black.withValues(alpha: 0.28),
-                            width: 4.5,
+              // Legal move indicator
+              if (isLegalDestination)
+                Center(
+                  child: piece == null
+                      ? Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.24),
+                            shape: BoxShape.circle,
+                          ),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.28),
+                              width: 4.5,
+                            ),
                           ),
                         ),
-                      ),
-              ),
-          ],
+                ),
+            ],
+          ),
         ),
       ),
     );

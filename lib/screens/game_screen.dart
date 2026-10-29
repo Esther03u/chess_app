@@ -187,10 +187,10 @@ class GameScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       margin: const EdgeInsets.fromLTRB(12.0, 10.0, 12.0, 4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
+        color: AppTheme.surfaceCard,
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
-          color: isAlert ? Colors.redAccent : Colors.transparent,
+          color: isAlert ? AppTheme.errorRed : AppTheme.border,
           width: 1.5,
         ),
       ),
@@ -268,8 +268,9 @@ class GameScreen extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: AppTheme.surfaceVariant,
         borderRadius: BorderRadius.circular(6.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: history.isEmpty
           ? const Center(
@@ -420,7 +421,7 @@ class GameScreen extends StatelessWidget {
               icon: const Icon(Icons.flag_outlined, size: 18),
               label: const Text(AppStrings.resign),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF452424),
+                backgroundColor: AppTheme.errorRed.withValues(alpha: 0.25),
                 foregroundColor: Colors.red.shade200,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -449,7 +450,7 @@ class GameScreen extends StatelessWidget {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            backgroundColor: const Color(0xFF312E2B),
+            backgroundColor: AppTheme.surfaceCard,
             title: const Text(
               'ตั้งค่าเกมและเวลา (Game Settings)',
               style: TextStyle(
@@ -490,7 +491,7 @@ class GameScreen extends StatelessWidget {
                         setState(() => selectedMode = newSelection.first);
                       },
                       style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedBackgroundColor: AppTheme.primaryGreen,
                         selectedForegroundColor: Colors.white,
                         foregroundColor: Colors.white70,
                       ),
@@ -524,7 +525,7 @@ class GameScreen extends StatelessWidget {
                         setState(() => selectedLevel = newSelection.first);
                       },
                       style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedBackgroundColor: AppTheme.primaryGreen,
                         selectedForegroundColor: Colors.white,
                         foregroundColor: Colors.white70,
                       ),
@@ -555,7 +556,7 @@ class GameScreen extends StatelessWidget {
                         setState(() => selectedColor = newSelection.first);
                       },
                       style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: const Color(0xFF769656),
+                        selectedBackgroundColor: AppTheme.primaryGreen,
                         selectedForegroundColor: Colors.white,
                         foregroundColor: Colors.white70,
                       ),
@@ -573,11 +574,11 @@ class GameScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   DropdownButtonFormField<TimeControl>(
                     initialValue: selectedTime,
-                    dropdownColor: const Color(0xFF312E2B),
+                    dropdownColor: AppTheme.surfaceCard,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFF262421),
+                      fillColor: AppTheme.surfaceVariant,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: const BorderSide(color: Colors.white24),
@@ -626,7 +627,7 @@ class GameScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF769656),
+                  backgroundColor: AppTheme.primaryGreen,
                 ),
                 child: const Text(
                   AppStrings.confirm,
@@ -653,7 +654,7 @@ class GameScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF312E2B),
+        backgroundColor: AppTheme.surfaceCard,
         title: const Text(
           'เริ่มเกมใหม่?',
           style: TextStyle(color: Colors.white),
@@ -672,7 +673,7 @@ class GameScreen extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF769656),
+              backgroundColor: AppTheme.primaryGreen,
             ),
             child: const Text(
               AppStrings.confirm,
@@ -696,7 +697,7 @@ class GameScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF312E2B),
+        backgroundColor: AppTheme.surfaceCard,
         title: const Text(
           AppStrings.resign,
           style: TextStyle(color: Colors.white),
@@ -740,7 +741,7 @@ class GameScreen extends StatelessWidget {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          backgroundColor: const Color(0xFF312E2B),
+          backgroundColor: AppTheme.surfaceCard,
           title: const Text('จบเกม', style: TextStyle(color: Colors.white)),
           content: Text(
             winnerMsg,
@@ -749,7 +750,7 @@ class GameScreen extends StatelessWidget {
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF769656),
+                backgroundColor: AppTheme.primaryGreen,
               ),
               child: const Text(
                 AppStrings.newGame,
@@ -774,7 +775,7 @@ class GameScreen extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF312E2B),
+        backgroundColor: AppTheme.surfaceCard,
         title: const Text(
           AppStrings.choosePromotion,
           style: TextStyle(fontSize: 16, color: Colors.white),
@@ -826,7 +827,7 @@ class GameScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF3F3B36),
+            color: AppTheme.surfaceVariant,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(

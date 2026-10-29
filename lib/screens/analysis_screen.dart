@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../core/strings.dart';
+import '../core/theme.dart';
 import '../domain/classification.dart';
 import '../domain/game_logic.dart';
 import '../models/analysis_result.dart';
@@ -118,14 +119,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     final record = widget.record;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF262421),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text(
           AppStrings.gameAnalysis,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
       ),
       body: SafeArea(
@@ -150,7 +151,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(color: Color(0xFF769656)),
+            const CircularProgressIndicator(color: AppTheme.primaryGreen),
             const SizedBox(height: 20),
             Text(
               AppStrings.analyzingGame,
@@ -170,7 +171,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               value: _progress,
               backgroundColor: Colors.white12,
               valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFF769656),
+                AppTheme.primaryGreen,
               ),
             ),
           ],
@@ -217,8 +218,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
       margin: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
+        color: AppTheme.surfaceCard,
         borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,7 +258,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 Text(
                   '${analysis.whiteAccuracy.toStringAsFixed(1)}%',
                   style: const TextStyle(
-                    color: Color(0xFF81C784),
+                    color: AppTheme.primaryGreen,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -317,7 +319,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 Text(
                   '${analysis.blackAccuracy.toStringAsFixed(1)}%',
                   style: const TextStyle(
-                    color: Color(0xFF81C784),
+                    color: AppTheme.primaryGreen,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -334,19 +336,19 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     Color classColor;
     switch (move.classification) {
       case MoveClassification.best:
-        classColor = const Color(0xFF629924);
+        classColor = AppTheme.primaryGreenDark;
         break;
       case MoveClassification.good:
-        classColor = const Color(0xFF8BC34A);
+        classColor = AppTheme.primaryGreen;
         break;
       case MoveClassification.inaccuracy:
-        classColor = const Color(0xFFFFB300);
+        classColor = AppTheme.accentAmber;
         break;
       case MoveClassification.mistake:
-        classColor = const Color(0xFFFF9800);
+        classColor = AppTheme.accentAmberDark;
         break;
       case MoveClassification.blunder:
-        classColor = const Color(0xFFE53935);
+        classColor = AppTheme.errorRed;
         break;
     }
 
@@ -361,8 +363,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
-        borderRadius: BorderRadius.circular(6.0),
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Column(
         children: [
@@ -552,8 +555,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
       margin: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 12.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF312E2B),
+        color: AppTheme.surfaceCard,
         borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
